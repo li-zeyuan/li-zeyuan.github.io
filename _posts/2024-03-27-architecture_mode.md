@@ -98,4 +98,4 @@ author: ahern
 - [程序员必知的几种软件架构模式](https://www.infoq.cn/article/6rx047oohjlrdipd1bc2)
 - [阶段式服务器模型](https://zh.wikipedia.org/wiki/%E9%98%B6%E6%AE%B5%E5%BC%8F%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A8%A1%E5%9E%8B)
 - [SEDA架构实现](https://blog.51cto.com/SoyTechnology/3346495)
-- [基于空间的架构](http://www.uml.org.cn/zjjs/202212164.asp)
+- 基于空间的架构(http://www.uml.org.cn/zjjs/202212164.asp)
