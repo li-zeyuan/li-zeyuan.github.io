@@ -35,7 +35,7 @@ https://www.infoq.cn/article/cache-coherency-primer
 
 对addr地址数据原子增加/减少delta
 
-[实现原理](http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#Add%E6%93%8D%E4%BD%9C)
+实现原理：http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#Add%E6%93%8D%E4%BD%9C
 
 - 使用`LOCK`指令保证原子性操作
   
@@ -54,7 +54,7 @@ https://www.infoq.cn/article/cache-coherency-primer
 ## func CompareAndSwapT(addr *T, old, new T) (swapped bool)
 对比addr地址的值是否为old，是则交换成new，否则不交换
 
-[实现原理](http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#CompareAndSwap%E6%93%8D%E4%BD%9C)
+实现原理：http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#CompareAndSwap%E6%93%8D%E4%BD%9C
 
   - **CMPXCHGQ**比较并交换指令是原子操作
 
@@ -78,7 +78,7 @@ https://www.infoq.cn/article/cache-coherency-primer
 
 - 向addr地址原子存储值
 
-- [实现原理](http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#Store%E6%93%8D%E4%BD%9C)
+- 实现原理：http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#Store%E6%93%8D%E4%BD%9C
 
   - **XCHGQ**交换指令，用于交换源操作数和目的操作数
 
@@ -94,7 +94,7 @@ https://www.infoq.cn/article/cache-coherency-primer
 
 - 交换addr地址的值成new，并返回old值
 
-- [实现原理](http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#Swap%E6%93%8D%E4%BD%9C)
+- 实现原理：http://www.cyub.vip/2021/04/05/Golang%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E7%B3%BB%E5%88%97%E4%B9%8Batomic%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/#Swap%E6%93%8D%E4%BD%9C
 
   - **XCHGQ**交换指令，用于交换源操作数和目的操作数
 
