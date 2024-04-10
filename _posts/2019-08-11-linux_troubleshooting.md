@@ -6,6 +6,12 @@ tags: [linux, troubleshooting]
 author: ahern
 ---
 
+## 查看内存使用情况
+top、htop
+
+## 查看CPU使用情况
+top、htop
+
 ## systemctl status查看service不断重启
 #### 原因
 服务发生Panic
@@ -25,3 +31,4 @@ author: ahern
 - fdisk -l 查看分区
 - df -lh 查看分区可使用占比
 - du --block-size=MiB --max-depth=1 | sort -rn | head -10  查看当前目录最大的10个文件
+- `find ./ -type f -size "+50M" -exec du -h {} + | sort -rh|head -n 60` 查看大于50的文件，按大小倒序
