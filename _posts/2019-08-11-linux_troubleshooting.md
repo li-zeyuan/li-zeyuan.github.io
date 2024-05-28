@@ -30,5 +30,5 @@ top、htop
 #### 解决
 - fdisk -l 查看分区
 - df -lh 查看分区可使用占比
-- du --block-size=MiB --max-depth=1 | sort -rn | head -10  查看当前目录最大的10个文件
+- `du --block-size=MiB --max-depth=1 | sort -rn | head -10`  查看当前目录最大的10个文件
 - `find ./ -type f -size "+50M" -exec du -h {} + | sort -rh|head -n 60` 查看大于50的文件，按大小倒序

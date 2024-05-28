@@ -46,3 +46,10 @@ values ('2022-07-15 00:00:08',
 #### 解决
 无
 
+## 分布式表写堆积问题
+#### 原因
+- 某个节点故障
+
+#### 解决
+- https://blanklin030.github.io/2022/01/12/clickhouse-distribute-insert-problem/
+
