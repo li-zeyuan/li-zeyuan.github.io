@@ -93,7 +93,7 @@ traces: 查看所有goroutine的调用栈
 
 `wget http://ip:port/debug/pprof/goroutine?debug=2`下载pprof
 
-`wim 'goroutine?debug=2'`打开文件,搜索阻塞函数名:samplingPolicyOnTickPerShards
+`vim 'goroutine?debug=2'`打开文件,搜索阻塞函数名:samplingPolicyOnTickPerShards
 
   ```
   goroutine 279 [semacquire, 892 minutes]:
