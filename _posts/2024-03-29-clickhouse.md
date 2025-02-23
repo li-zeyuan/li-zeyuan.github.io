@@ -179,6 +179,14 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 压缩算法选型：https://blog.csdn.net/neweastsun/article/details/130974311；https://chistadata.com/compression-algorithms-and-codecs-in-clickhouse/
 - 压缩算法：https://developer.aliyun.com/article/780586
 
+## 参数调优
+在system.settings表中可查
+
+- background_pool_size：后台线程池大小，影响merge partition速度，默认16，建议为cpu个数2倍
+- max_memory_usage: 单次query占用最大值，默认10G
+- max_table_size_to_drop: 删除分区时，限制的可删除大小
+
+速度，
 ## 总结
 - clickhouse采用列式存储，适合OLAP场景
 - 多种数据类型，不支持Bool，LowCardinality对数据类型进行二次编码
@@ -190,4 +198,5 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 官方文档：https://clickhouse.com/docs/en/intro
 - https://blog.csdn.net/qq_40378034/article/details/120256757
 - BitMap及其在ClickHouse中的应用：https://zhuanlan.zhihu.com/p/480345952
+- 主键/索引/工作原理：https://clickhouse.com/docs/zh/guides/improving-query-performance
 

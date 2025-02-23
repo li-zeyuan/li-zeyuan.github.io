@@ -53,3 +53,9 @@ values ('2022-07-15 00:00:08',
 #### 解决
 - https://blanklin030.github.io/2022/01/12/clickhouse-distribute-insert-problem/
 
+## ddl语句卡住，执行超时
+#### 原因
+- ck中的ddl语句是串行执行，一条ddl卡住，将阻塞其他ddl语句执行
+#### 解决
+https://opensource.actionsky.com/20220505-clickhouse/
+

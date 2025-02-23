@@ -44,3 +44,19 @@ author: ahern
 - 采用logging限制：https://docs.docker.com/compose/compose-file/compose-file-v3/#logging
 - 清理磁盘空间：https://www.jb51.net/article/241905.htm
 
+## Overlay2目录占用磁盘空间
+#### 复现
+```
+root@144.1.1.1:/# df -lh
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sdc4       438G   438G  0G  100% /
+overlay         438G   438G  0G  100% /data/docker/overlay2/xx/merged
+```
+
+#### 原因
+- Docker Overlay2 是 Docker 存储驱动程序之一，用于管理 Docker 容器的文件系统。它是 Docker Engine 的默认存储驱动程序
+- 大量docker镜像占用磁盘空间
+
+#### 解决
+- 清理不使用的docker镜像和卷：docker system prune --all --volumes
+
