@@ -7,6 +7,7 @@ author: ahern
 ---
 
 ### 浏览器输入url的过程
+
 - 1、DNS域名解析
 - 2、建立TCP连接
 - 3、发送HTTP请求
@@ -20,7 +21,9 @@ author: ahern
 - 明文传输
 
 ### https
+
 https://zhuanlan.zhihu.com/p/43789231
+
 - 443端口
 - 是http+SSL/TLS
 - 需要CA证书
@@ -28,13 +31,18 @@ https://zhuanlan.zhihu.com/p/43789231
 
 通讯过程
 
-- ![](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210321135107.png){:height="10%" width="50%"}
+![](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210321135107.png){:height="10%" width="50%"}
 
 - 客户端请求建立SSL连接
+
 - 服务端返回证书信息（服务端公钥）
+
 - 客户端SSL/TLS校验证书
+
 - 客户端生成会话秘钥（对称秘钥），用公钥加密发送给服务端
+
 - 服务端用私钥解密得到会话秘钥
+
 - 客户端、服务端通讯用会话秘钥加密
 
 客户端如何验证数字证书（服务端公钥）
@@ -45,6 +53,7 @@ https://zhuanlan.zhihu.com/p/43789231
 - 4、对比T、S值
 
 ### https2.0
+
 - 帧:数据通讯的最小单位
 - 流：二进制编码流传输，http1.1文本传输
 - 多路复用：同一个域名，只占用一个tcp连接

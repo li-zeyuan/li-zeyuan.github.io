@@ -20,11 +20,13 @@ author: ahern
 
 ### TCP三次握手四次挥手
 
-![三次握手](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210130134349.png){:height="10%" width="50%"}
-
-- 1、client向server发送一个syn
+- TCP 三次握手
+  ![三次握手](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210130134349.png){:height="10%" width="50%"}
+  
+  - 1、client向server发送一个syn
   
   - 2、server收到syn包，响应一个ack；同时发送一个请求报文syn
+  
   - 3、client收到syn后，响应确认报文ack
 
 - TCP四次挥手
@@ -139,7 +141,7 @@ author: ahern
 - 传输层：tcp、udp
 - 网络层：ip
 - 数据链路层：以太网协议
-- 物理成：
+- 物理层：光纤
 
 ### 为什么说TCP是面向流的协议？而UDP是面向数据报的协议
 

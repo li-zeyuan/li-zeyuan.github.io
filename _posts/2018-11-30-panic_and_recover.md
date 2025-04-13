@@ -7,6 +7,7 @@ author: ahern
 ---
 
 ## panic
+
 ### 数据结构
 
 ```go
@@ -28,7 +29,7 @@ func gopanic(e interface{}) {
     // 把当前最新的 _panic 挂到链表最前面
     p.link = gp._panic
     gp._panic = (*_panic)(noescape(unsafe.Pointer(&p)))
-    
+
     for {
         // 取出当前最近的 defer 函数；
         d := gp._defer
@@ -58,7 +59,7 @@ func gopanic(e interface{}) {
 
         // defer 执行完成，把这个 defer 从链表里摘掉；
         gp._defer = d.link
-        
+
         // 取出 pc，sp 寄存器的值；
         pc := d.pc
         sp := unsafe.Pointer(d.sp)
@@ -86,18 +87,22 @@ func gopanic(e interface{}) {
 }
 ```
 
-
-
 ### panic 究竟是啥？是一个结构体？还是一个函数？
+
 - 背后执行gopanic函数
 
 ### 为什么 panic 会让 Go 进程退出的 ？
+
 - 因为gopanic函数调用了**exit(2)** 
+  
 ### 为什么 recover 一定要放在 defer 里面才生效？
+
 - 因为gopanic函数执行会从当前的挂载的_defer链表取出defer延迟函数执行
+  
 ### 为什么 recover 已经放在 defer 里面，但是进程还是没有恢复？
 
 - 嵌套panic导致
+
 - defer只对当前的goroutine有效
 
 ### 为什么 panic 之后，还能再 panic ？有啥影响？
@@ -109,21 +114,21 @@ func gopanic(e interface{}) {
 - panic会新建一个_panic对象，放在链表表头。通过_panic.link下一个panic对象
 
 - panic嵌套，从链表尾部向上递归打印，如
-
+  
   - ```go
     func main() {
-    	defer func() { // 延迟函数
-    		panic("panic again")
-    	}()
-    	panic("first")
+        defer func() { // 延迟函数
+            panic("panic again")
+        }()
+        panic("first")
     }
     
     // panic: first
     //       panic: panic again
-    
     ```
 
 ### 参考
+
 - https://jishuin.proginn.com/p/763bfbd651e3
 
 ## recover

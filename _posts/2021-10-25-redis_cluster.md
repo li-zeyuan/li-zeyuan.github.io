@@ -6,9 +6,10 @@ tags: [redis]
 author: ahern
 ---
 
-
 ## 主从
+
 - 一主多从；主负责写，从负责读
+
 ### 主从复制原理
 
 ![Snipaste_2022-03-25_10-40-40](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20220325104800.png){:height="10%" width="50%"}
@@ -24,7 +25,6 @@ author: ahern
 
 - 不具备容灾能力
 
-
 ## 哨兵
 
 ### 总体架构
@@ -35,6 +35,7 @@ author: ahern
 - 哨兵节点是特殊的redis服务，不提供读写功能
 
 ### 作用
+
 - 监控：监控redis node是否正常工作
 - 告警：redis出现故障，发出告警
 - 故障转移：自动选举新的master，并向客户端发布新的master配置
@@ -63,13 +64,22 @@ author: ahern
 - 5、修改配置
   - 领头sentinel向redis node广播新的master配置
   - 领头sentinel向客户端广播新的master配置
-  
+
 ## 集群
 
 ![Snipaste_2022-03-25_11-17-11](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20220325111742.png){:height="10%" width="50%"}
 
 - 每个master节点存储的数据都不一样
-- client请求集群查找目标节点采用**slots 插槽**，不是一致性哈稀
+- client请求集群查找目标节点采用哈希槽（slots 插槽）
+  
+  ```
+  槽位分配：集群初始化时，哈希槽固定16384个,被均匀分配到主节点。例如：
+  节点A：槽 0-5460
+  节点B：槽 5461-10922
+  节点C：槽 10923-16383
+  ```
+  
+  
 
 ### 工作原理
 

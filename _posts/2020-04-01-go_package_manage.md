@@ -53,7 +53,7 @@ GOPATH：一个项目一个GOPATH，go get第三方包时，会保存在`$GOPATH
 - require：依赖列表
   - 版本规范依赖：`github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.1`
   - 伪版本号(pseudo-version)：`github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b`
-  - incompatible；版本>=2，但是没有新的go.mod；或者没有使用go mod 管理 ：`github.com/dgrijalva/jwt-go v3.2.0+incompatible`
+  - incompatible；不兼容的意思。go规范中主版本>=2时，模块路径以/vn结尾（如：github.com/foo/bar/v2）。若未遵循该规范，go mod将出现incompatible，如：`github.com/dgrijalva/jwt-go v3.2.0+incompatible`
 - indirect：间接依赖
 - exclude：go get时这些版本不在考虑范围
 - replace：重定向包路径
@@ -65,6 +65,9 @@ GOPATH：一个项目一个GOPATH，go get第三方包时，会保存在`$GOPATH
 ```
 <module> <version> <hash>
 <module> <version>/go.mod <hash>
+
+github.com/HdrHistogram/hdrhistogram-go v1.1.2 h1:5IcZpTvzydCQeHzK4Ef/D5rrSqwxob0t8PQPMybUNFM=
+github.com/HdrHistogram/hdrhistogram-go v1.1.2/go.mod h1:yDgFjdqOqDEKOvasDdhWNXYg9BVp4O+o5f6V/ehm6Oo=
 ```
 
 作用：
