@@ -5,7 +5,7 @@ order: 4
 ---
 
 <h2 align="center"> 👋 𝗛𝗲𝗹𝗹𝗼 𝗜'𝗺 LiZeyuan 👨‍💻 </h2>
-<img align="right" width="320" src="https://media1.giphy.com/media/13HgwGsXF0aiGY/giphy.gif" />
+<img align="right" width="320" src="https://media1.giphy.com/media/13HgwGsXF0aiGY/giphy.gif" alr="Coding"/>
 
 ## 📖 Introduction
 <ul>
