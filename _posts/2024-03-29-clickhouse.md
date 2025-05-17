@@ -132,7 +132,7 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 
 #### 主键索引
 - 没有唯一约束
-- 稀疏索引
+- 稀疏索引；不是每行数据都建立索引，而是在固定间隔（8192行）生成索引标记
 - 由建表语句index_granularity指定索引粒度，默认8192
 
 #### 分区索引
@@ -147,8 +147,9 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - ngrambf_v1(n, size_of_bloom_filter_in_bytes, number_of_hash_functions, random_seed)：对String, FixedString 和 Map类型数据有效，可用于优化 EQUALS, LIKE 和 IN表达式。
 - tokenbf_v1(size_of_bloom_filter_in_bytes, number_of_hash_functions, random_seed)：适用全文搜索
 
-#### 稀疏索引
-- 分区数据已经按order by字段排序，在这个基础上再创建索引（二级索引）
+#### 排序key
+- 不是传统意义上的索引，决定数据在磁盘上的物理排序
+- 分区数据按order by字段排序，显著提升范围查询和排序操作的性能
 
 #### 参考
 - 类型：https://clickhouse.com/docs/en/guides/improving-query-performance/skipping-indexes#skip-index-types
