@@ -610,8 +610,8 @@ typedef struct raxNode {
   - iscompr=0：节点为非压缩节点，size是孩子节点的数量
   - iscompr=1：节点为压缩节点，size是已压缩的字符串长度
 - data：
-  - iscompr=0：节点为非压缩节点，数据格式为[header strlen=0][abc][a-ptr][b-ptr][c-ptr](value-ptr?)。其有size个字符，
-  - iscompr=1：节点为压缩节点，数据格式为[header strlen=3][xyz][z-ptr](value-ptr?)。
+  - iscompr=0：节点为非压缩节点，数据格式为`[header strlen=0][abc][a-ptr][b-ptr][c-ptr](value-ptr?)`。其有size个字符，
+  - iscompr=1：节点为压缩节点，数据格式为`[header strlen=3][xyz][z-ptr](value-ptr?)`。
 
 为了便于理解，设定一些场景举例说明
 
