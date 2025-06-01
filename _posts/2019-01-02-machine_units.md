@@ -26,11 +26,22 @@ author: ahern
 ### G
 - 1G = 1024M = 2^30B 约 10^9B
 
-### logN
-- 2为底
+### log
+https://zh.wikipedia.org/wiki/%E5%AF%B9%E6%95%B0
 
-### lgN
-- 10为底
+对数，是幕运算的逆运算，如：
+$$
+x = A^y
+$$
+
+则有对数运算：
+$$
+y = log_A x
+$$
+
+logX: 以2为底
+
+lgN：以10为底
 
 ### 1亿
 - 10^8
