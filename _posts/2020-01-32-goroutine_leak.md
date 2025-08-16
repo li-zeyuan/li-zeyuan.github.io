@@ -72,7 +72,7 @@ traces: 查看所有goroutine的调用栈
 
 ## Debug=1，定位函数调用栈
 
-`wget http://ip:port/debug/pprof/goroutine?debug=1`下载pprof
+`wget http://ip:port/debug/pprof/goroutine?debug=1 -O 1.gor`下载pprof
 
 `wim 'goroutine?debug=1'`打开文件，搜索阻塞函数名:samplingPolicyOnTickPerShards
 
@@ -91,7 +91,7 @@ traces: 查看所有goroutine的调用栈
 
 ## Debug=2，查看goroutine阻塞时间
 
-`wget http://ip:port/debug/pprof/goroutine?debug=2`下载pprof
+`wget http://ip:port/debug/pprof/goroutine?debug=2 -O 2.gor`下载pprof
 
 `vim 'goroutine?debug=2'`打开文件,搜索阻塞函数名:samplingPolicyOnTickPerShards
 

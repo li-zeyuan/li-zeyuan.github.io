@@ -49,9 +49,16 @@ values ('2022-07-15 00:00:08',
 ## 分布式表写堆积问题
 #### 原因
 - 某个节点故障
+- 写入分布式表的分发parts堆积
 
 #### 解决
-- https://blanklin030.github.io/2022/01/12/clickhouse-distribute-insert-problem/
+1、删除分布式表
+
+https://blanklin030.github.io/2022/01/12/clickhouse-distribute-insert-problem/
+
+2、[慎重]直接删除.bin文件
+- 找到占用空间大目录: `cd /data1/clickhouse/store && du --block-size=MiB --max-depth=1 | sort -rn | head -10`
+- 删除bin文件：`cd /data1/clickhouse/store/xxx/xxx && rm -rf ./*`
 
 ## ddl语句卡住，执行超时
 #### 原因
