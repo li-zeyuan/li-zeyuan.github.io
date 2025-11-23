@@ -126,3 +126,11 @@ author: ahern
    ```
    apt install libncurses5
    ```
+
+2. 报错：
+   ```
+   root@VM-8-13-ubuntu:/opt# /opt/mysql-8.0.11/bin/mysqld --defaults-file=/opt/mysql-8.0.11/mysql-dev/conf/my.cnf --initialize --user=root
+   /opt/mysql-8.0.11/bin/mysqld: error while loading shared libraries: libaio.so.1: cannot open shared object file: No such file or directory
+   ```
+
+   https://www.cnblogs.com/baozixiaoge/p/18277347
