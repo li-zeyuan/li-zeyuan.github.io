@@ -1,7 +1,7 @@
 ---
 title: 智力题
 date: 2020-03-18 00:00:00 +0800
-categories: [root, algorithm]
+categories: [algorithm, others]
 tags: [algorithm]
 author: ahern
 ---

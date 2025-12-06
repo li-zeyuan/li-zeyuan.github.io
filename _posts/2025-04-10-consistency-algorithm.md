@@ -1,7 +1,7 @@
 ---
 title: 常见一致性算法
 date: 2025-04-10 00:00:00 +0800
-categories: [root, algorithm]
+categories: [algorithm, scene]
 tags: [algorithm]
 author: ahern
 ---

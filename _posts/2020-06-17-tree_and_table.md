@@ -1,7 +1,7 @@
 ---
 title: 树与表
 date: 2020-06-17 00:00:00 +0800
-categories: [root, algorithm]
+categories: [algorithm, tree]
 tags: [algorithm]
 author: ahern
 ---
