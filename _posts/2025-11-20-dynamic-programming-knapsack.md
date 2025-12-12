@@ -90,7 +90,8 @@ func knapsack_bottom_up(weights []int, values []int, capacity int) int {
 				table[i][c] = table[i-1][c] // 前一个物品在该容量下的最大价值
 			} else { // 放入
 				table[i][c] = int(
-					math.Max( // 考虑物品价值为负数情况,取最大值
+          // table[i-1][c]是前一个物品在c容量下的最大价值，但不是一定包含 i-1 物品，需要 max 对比
+					math.Max(
             // 前一个物品在该容量下的最大价值
 						float64(table[i-1][c]),
 
@@ -359,3 +360,78 @@ func unboundedKnapsackDPComp(weights []int, values []int, capacity int) int {
 ## 参考
 - 01背包问题：https://infinityglow.github.io/study/algorithm/dynamic-programming/knapsack-problem/
 - 完全背包问题：https://www.hello-algo.com/chapter_dynamic_programming/unbounded_knapsack_problem/
+
+## 分割等和子集-416
+### 题目描述
+给你一个 只包含正整数 的 非空 数组 nums 。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。
+
+```
+示例 1：
+
+输入：nums = [1,5,11,5]
+输出：true
+解释：数组可以分割成 [1, 5, 5] 和 [11] 。
+
+
+示例 2：
+
+输入：nums = [1,2,3,5]
+输出：false
+解释：数组不能分割成两个元素和相等的子集。
+
+
+提示：
+
+1 <= nums.length <= 200
+1 <= nums[i] <= 100
+```
+
+```go
+func canPartition(nums []int) bool {
+	if len(nums) < 2 {
+		return false
+	}
+
+	sum := 0
+	for _, num := range nums {
+		sum += num
+	}
+	if sum%2 != 0 {
+		return false
+	}
+	// target（容量），获取能容纳子集数组最大值
+	target := sum / 2
+
+	// dp[i][t]标志在 t 容量时，子集数组最大值
+	dp := make([][]int, len(nums)+1)
+	// 第 i 行依赖第 i-1 行结果，为方便取值，初始化第一个行（i=0）为零值
+	dp[0] = make([]int, target+1)
+
+	// 外层遍历物品
+	for i := 1; i < len(nums)+1; i++ {
+		// 待填充行
+		row := make([]int, target+1)
+		// 内层遍历容量
+		// t从 1 开始是为了方便下标计算，也可以从 0 开始
+		for t := 1; t < target+1; t++ {
+			if t-nums[i-1] >= 0 {
+				// 放的下
+				// 注意做 max 对比
+				row[t] = max(
+					dp[i-1][t],
+					// 前一个 num，在 t-nums[i-1]（容量），再加上当前 num 值
+					dp[i-1][t-nums[i-1]]+nums[i-1],
+				)
+			} else {
+				// 容量不足，放不下，等于上一个num（物品）在 t（容量）下的值
+				row[t] = dp[i-1][t]
+			}
+		}
+
+		dp[i] = row
+	}
+
+	// 一顿操作下来，如果最大的子集只和刚好等于 target，则存在这样的子集
+	return dp[len(nums)][target] == target
+}
+```

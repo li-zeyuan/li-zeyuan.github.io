@@ -1,5 +1,5 @@
 ---
-title: 动态规划理论基础
+title: 动态规划-理论基础
 date: 2025-11-20 10:00:00 +0800
 categories: [algorithm, dynamic-programming]
 tags: [algorithm, dynamic programming]
