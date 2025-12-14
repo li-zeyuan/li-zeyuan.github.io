@@ -386,6 +386,12 @@ func unboundedKnapsackDPComp(weights []int, values []int, capacity int) int {
 1 <= nums[i] <= 100
 ```
 
+### 解题思路
+求分割成两个相等的子集，也就是找到是否存在一个子集等于sum / 2。
+
+可以转化成背包问题，背包容量是 sum / 2，物品重量和价值都是 nums。从 nums 中寻找 n 个物品放入背包，重量刚好是 sum / 2。
+对于这道题，我们只需要关注重量，即 nums 是物品重量
+
 ```go
 func canPartition(nums []int) bool {
 	if len(nums) < 2 {
@@ -433,5 +439,82 @@ func canPartition(nums []int) bool {
 
 	// 一顿操作下来，如果最大的子集只和刚好等于 target，则存在这样的子集
 	return dp[len(nums)][target] == target
+}
+```
+
+<br>
+总结：
+
+- 关注价格，背包问题可以求最大价值
+- 关注重量（容量），背包问题可以求是否装满
+
+## 最后一块石头的重量II-1049
+### 题目描述
+有一堆石头，用整数数组 stones 表示。其中 stones[i] 表示第 i 块石头的重量。
+
+每一回合，从中选出任意两块石头，然后将它们一起粉碎。假设石头的重量分别为 x 和 y，且 x <= y。那么粉碎的可能结果如下：
+
+如果 x == y，那么两块石头都会被完全粉碎；
+如果 x != y，那么重量为 x 的石头将会完全粉碎，而重量为 y 的石头新重量为 y-x。
+最后，最多只会剩下一块 石头。返回此石头 最小的可能重量 。如果没有石头剩下，就返回 0。
+
+ 
+```
+示例 1：
+
+输入：stones = [2,7,4,1,8,1]
+输出：1
+解释：
+组合 2 和 4，得到 2，所以数组转化为 [2,7,1,8,1]，
+组合 7 和 8，得到 1，所以数组转化为 [2,1,1,1]，
+组合 2 和 1，得到 1，所以数组转化为 [1,1,1]，
+组合 1 和 1，得到 0，所以数组转化为 [1]，这就是最优值。
+示例 2：
+
+输入：stones = [31,26,33,21,40]
+输出：5
+ 
+
+提示：
+
+1 <= stones.length <= 30
+1 <= stones[i] <= 100
+```
+ 
+ ### 解题思路
+ 题意可以转化成把石头堆分成两份，而且每堆重量尽可能相同，也就是接近 sum / 2。
+
+ 这里就非常像【分割等和子集-416】问题，只不过【分割等和子集-416】问题是求背包是否正好装满，该题是求 sum / 2 容量下最大能装多少。
+
+ 用一维dp数组记录状态，dp[j]表示j容量下，最多能装的石头重量。第一堆最大能装重量：dp[sum / 2],另一堆最大能装重量是：sum - dp[sum / 2]；则一起粉碎后后剩余：（sum - dp[sum / 2]） - dp[sum / 2]
+
+ > 为什么分堆容量限制是 sum/2，而不用考虑 sum 是奇数的情况？
+ >
+ > 因为sum是奇数场景下，两堆重量不可能相等。sum/2向下取整，第一堆分到dp[sum / 2]，第二堆分到sum - dp[sum / 2]。也可以限制sum/2+1，只不过一、二重量对换。
+
+
+// todo
+```go
+func lastStoneWeightII(stones []int) int {
+	if len(stones) == 1 {
+		return stones[0]
+	}
+
+	sum := 0
+	for i := 0; i < len(stones); i++ {
+		sum += stones[i]
+	}
+	target := sum / 2
+
+	dp := make([]int, target)
+	for i := 0; i < len(stones); i++ {
+		for j := target - 1; j >= 0; j-- {
+			if j-stones[i] >= 0 {
+				dp[j] = max(dp[j], dp[j-stones[i]]+stones[i])
+			}
+		}
+	}
+
+	return sum - dp[target-1] - dp[target-1]
 }
 ```
