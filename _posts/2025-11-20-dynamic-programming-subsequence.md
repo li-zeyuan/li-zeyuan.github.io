@@ -158,7 +158,7 @@ $$
 有两种情况：
 1、当text1[i] == text2[j]；表明该字符属于公共子序列，则 dp[i][j] = dp[i-1][j-1] + 1。（不理解？？）
 <br>
-2、当text1[i] != text2[j]；取 dp[i-1][j] 和 dp[i][j-1] 最大值
+2、当text1[i] != text2[j]；最长公共子序列可能存在text1[i-1]、text2[j] 或 text1[i]、text2[j-1]中。则取 dp[i-1][j] 和 dp[i][j-1] 最大值
 
 
 状态转移方程：
@@ -260,5 +260,102 @@ func maxSubArray(nums []int) int {
 	}
 
 	return result
+}
+```
+
+## 判断子序列-[392](https://leetcode.cn/problems/is-subsequence/description/)
+题意可以转化成：求s、t的相同子序列长度，并判断相同子序列的长度是否等于len(s)。
+
+dp[i][j] 表示以s[i-1]、t[j-1]结尾的相同子序列长度。
+遍历s和t，有两种情况：
+<br>
+1、如果s[i] == t[j], 与[最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)一样
+<br>
+2、如果s[i] != t[j], 则需要剪掉t[j]字符，继续匹配，也就是：dp[i][j] = dp[i][j-1]
+> 与[最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)不同的是，并不再需要考虑剪掉s[i-1]（dp[i-1][j]）字符情况。因为s剪掉字符，不再符合题意。
+
+```go
+func isSubsequence(s string, t string) bool {
+	// dp[i][j] 表示以s[i-1]、t[j-1]结尾的相同子序列长度
+	dp := make([][]int, len(s)+1)
+	for i := 0; i < len(s)+1; i++ {
+		dp[i] = make([]int, len(t)+1)
+	}
+
+	for i := 1; i < len(s)+1; i++ { // 遍历子串
+		for j := 1; j < len(t)+1; j++ { // 遍历原始字符串
+			if s[i-1] == t[j-1] {
+				dp[i][j] = dp[i-1][j-1] + 1
+			}else {
+				// 原始字符串 剪掉当前字符，等于前一个字符的结果
+				dp[i][j] = dp[i][j-1] 
+			}
+		}
+	}
+
+	return dp[len(s)][len(t)] == len(s)
+}
+```
+
+## 两个字符串的删除操作-[583](https://leetcode.cn/problems/delete-operation-for-two-strings/description/)
+这道题也是类公共子序列问题。设 dp[i][j] 表示 word1[i-1]、word2[j-1] 处所需的最小步数。
+
+画一遍dp表，就有思路了：
+![img.png](../assets/images/img_62.png){:height="10%" width="50%"}
+
+双循环遍历 word1、word2，有两种情况：
+<br>
+1、word1[i] == word2[j]; 此时不需要裁剪word1、word2，结果直接等于dp[i-1][j-1]。
+<br>
+2、word1[i] != word2[j]; 此时需要裁剪word1 或 word2。有两种裁剪方式：
+> 第一种：裁剪word2，也就是在dp[i][j-1]，加多一步
+> <br>
+> 第二种：裁剪word1，也就是在dp[i-1][j]，加多一步
+>
+> Note: 在不理解，手画一遍dp 表，必懂。
+
+
+临界条件：
+<br>
+1、当 word1 为 `""`；
+<br>
+2、当 word2 为 `""`；
+
+得出转移方程：
+
+$$
+dp[i][j] =
+\begin{cases}
+dp[i-1][j-1], & \text{if } word1[i-1] == word2[j-1] \\[6pt]
+min(dp[i-1][j], dp[i][j-1]), & \text{if } word1[i-1] != word2[j-1] \\[6pt]
+\end{cases}
+$$
+
+```go
+func minDistance(word1 string, word2 string) int {
+	dp := make([][]int, len(word1)+1)
+	for i := 0; i < len(word1)+1; i++ {
+		dp[i] = make([]int, len(word2)+1)
+		dp[i][0] = i
+
+		if i == 0 {
+			for j := 0; j < len(word2)+1; j++ {
+				dp[i][j] = j
+			}
+		}
+	}
+
+	for i := 1; i < len(word1)+1; i++ {
+		for j := 1; j < len(word2)+1; j++ {
+			if word1[i-1] == word2[j-1] {
+				dp[i][j] = dp[i-1][j-1]
+			} else {
+				dp[i][j] = min(dp[i][j-1], dp[i-1][j]) + 1
+			}
+		}
+
+	}
+
+	return dp[len(word1)][len(word2)]
 }
 ```
