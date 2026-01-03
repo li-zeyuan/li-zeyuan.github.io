@@ -359,3 +359,200 @@ func minDistance(word1 string, word2 string) int {
 	return dp[len(word1)][len(word2)]
 }
 ```
+
+## 编辑距离-[72](https://leetcode.cn/problems/edit-distance/description/)
+最终状态是 word1 与 word2 相等，八九不离十是子序列问题。
+
+设 dp[i][j] 表示在 word1[i-1]、word2[j-1] 处，所需要最少操作数。
+
+画出dp表，思路就清晰了：
+```
+      ""    r     o     s   
+   +-----+-----+-----+-----+
+"" |  0  |  1  |  2  |  3  |
+   +-----+-----+-----+-----+
+ h |  1  |  1  |  2  |  3  |
+   +-----+-----+-----+-----+
+ o |  2  |  2  |  1  |  2  |
+   +-----+-----+-----+-----+
+ r |  3  |  2  |  2  |  2  |
+   +-----+-----+-----+-----+
+ s |  4  |  3  |  3  |  2  |
+   +-----+-----+-----+-----+
+ e |  5  |  4  |  4  |  3  |
+   +-----+-----+-----+-----+
+```
+
+
+遍历 word1 和 word2。有两种情况：
+<br>
+1、word1[i-1] == word2[j-1]；不需要任何操作，即：dp[i][j] == dp[i-1][j-1]
+<br>
+2、word1[i-1] != word2[j-1]；需要 1 步操作
+- word1 删除一个字符；即 dp[i][j] == dp[i-1][j] + 1；如上表	dp[3][2]
+- word2 删除一个字符；即 dp[i][j] == dp[i][j-1] + 1；如上表	dp[1][2]
+- word1、word2 增加相同的字符；即 dp[i][j] == dp[i-1][j-1] + 1；如上表 dp[3][3]
+
+
+状态转移方程：
+
+$$
+dp[i][j] =
+\begin{cases}
+dp[i-1][j-1], & \text{if } word1[i-1] == word2[j-1] \\[6pt]
+min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]), & \text{if } word1[i-1] != word2[j-1] \\[6pt]
+\end{cases}
+$$
+
+```go
+func minDistance(word1 string, word2 string) int {
+	dp := make([][]int, len(word1) + 1)
+	for i := 0; i < len(word1) + 1; i ++ {
+		dp[i] = make([]int, len(word2) + 1)
+		dp[i][0] = i
+	}
+	for j := 0 ;j < len(word2) + 1; j ++ {
+		dp[0][j] = j
+	}
+
+	for i := 1 ; i <len(word1) + 1; i ++ {
+		for j := 1; j <len(word2) + 1; j ++ {
+			if word1[i-1] == word2[j-1] {
+				dp[i][j] = dp[i-1][j-1]
+			}else {
+				dp[i][j] = min(dp[i-1][j-1],min(dp[i][j-1], dp[i-1][j])) + 1
+			}
+		}
+
+		fmt.Print(dp[i])
+	}
+
+	return dp[len(word1)][len(word2)]
+}
+```
+## 回文子串-[647](https://leetcode.cn/problems/palindromic-substrings/description/)
+根据回文字符串特点：对于一个字符串，如 `cbabc`，`bab`子串是回文数，s[0] 与 s[4] 相等，那么该字符串也是回文数。
+
+**动态规划讲究把问题拆分成子问题。**
+
+设 dp[start][end] 表示字符串 s[start: end] （左闭右闭）是否为回文数
+> 为什么不能定义dp[start][end] 表示字符串中 回文子串 的数目?
+> 
+> 答：核心是能不能拆分成子问题；根据回文子串特点，并不是依赖前 i-1 个子字符，而是依赖s[start-1: end-1]
+
+
+s[start: end] 有2种情况：
+<br>
+1、s[start] != s[end]；那么这个子串不可能是回文子串
+<br>
+2、s[start] == s[end]；又分几种情况
+- 1 个字符；即start == end，那必须是回文子串
+- 2 个字符；即end - start == 1，那也是回文子串
+- 2 个字符以上；即end -start > 1，也是去掉头尾，还是一个回文子串，也就是 dp[start][end] = dp[start+1][end-1]
+- 其他场景都不是回文子串
+
+根据以上分析，存在转移方程：dp[start][end] = dp[start+1][end-1]；所以dp 表的遍历顺序应该是**从小到上，从左到右**
+
+```go
+func countSubstrings(s string) int {
+	if len(s) == 0 {
+		return 0
+	}
+
+	dp := make([][]bool, len(s))
+	for i := 0; i < len(s); i++ {
+		dp[i] = make([]bool, len(s))
+	}
+
+	result := 0
+	// start 从下到上
+	for start := len(s) - 1; start >= 0; start-- {
+		// end 从左到右
+		for end := start; end < len(s); end++ {
+			if s[start] != s[end] {
+				continue
+			}
+
+			// 1个字符
+			if start == end {
+				dp[start][end] = true
+				result++
+			}
+			// 2个字符
+			if end-start == 1 {
+				dp[start][end] = true
+				result++
+			}
+
+			// 大于2个字符
+			if end-start > 1 && dp[start+1][end-1] {
+				dp[start][end] = true
+				result++
+			}
+		}
+	}
+
+	return result
+}
+```
+
+## 最长回文子序列-[516](https://leetcode.cn/problems/longest-palindromic-subsequence/description/)
+
+设 dp[start][end] 表示 s[start:end]（左闭右闭）最长回文子序列长度。
+
+有以下几种情况：
+<br>
+1个字符；即 satrt == end，则 dp[start][end] == 1
+<br>
+2个字符；即 end - start = 1，
+- 当 s[start] != s[end]; dp[start][end] == 1
+- 当 s[start] == s[end]; dp[start][end] == 2
+<br>
+大于2个字符；即 end - start > 1
+- 当 s[start] == s[end]; s[start]、s[end] 追加到字符s[start + 1][end - 1]会产生更长的回文子序列，则 dp[start][end] = dp[start + 1][end - 1] + 1
+- 当 s[start] != s[end]; 需要对比s[start] 或 s[end] 追加到字符s[start + 1][end - 1]哪种情况产生的回文子序列长度最大，则 dp[start][end] = max(dp[start+1][end], dp[start][end -1])
+
+
+通过以上分析，dp[start][end] 依赖 dp[start + 1][end-1]、dp[start + 1][end]、dp[start][end - 1]，得出dp表的填充顺序是：**从下到上，从左到右**
+
+```go
+func longestPalindromeSubseq(s string) int {
+	if len(s) == 0 {
+		return 0
+	}
+
+	dp := make([][]int, len(s))
+	for i := range dp {
+		dp[i] = make([]int, len(s))
+	}
+
+	for start := len(s) - 1; start >= 0; start-- {
+		for end := start; end < len(s); end++ {
+			// 一个字符
+			if start == end {
+				dp[start][end] = 1
+			}
+
+			// 2个字符
+			if end-start == 1 {
+				if s[start] == s[end] {
+					dp[start][end] = 2
+				} else {
+					dp[start][end] = 1
+				}
+			}
+
+			// 大于2个字符
+			if end-start > 1 {
+				if s[start] == s[end] {
+					dp[start][end] = dp[start+1][end-1] + 2
+				} else {
+					dp[start][end] = max(dp[start+1][end], dp[start][end -1])
+				}
+			}
+		}
+	}
+
+	return dp[0][len(s)-1]
+}
+```
