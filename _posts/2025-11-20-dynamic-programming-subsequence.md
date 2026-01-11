@@ -158,7 +158,7 @@ $$
 有两种情况：
 1、当text1[i] == text2[j]；表明该字符属于公共子序列，则 dp[i][j] = dp[i-1][j-1] + 1。（不理解？？）
 <br>
-2、当text1[i] != text2[j]；取 dp[i-1][j] 和 dp[i][j-1] 最大值
+2、当text1[i] != text2[j]；最长公共子序列可能存在text1[i-1]、text2[j] 或 text1[i]、text2[j-1]中。则取 dp[i-1][j] 和 dp[i][j-1] 最大值
 
 
 状态转移方程：
@@ -260,5 +260,299 @@ func maxSubArray(nums []int) int {
 	}
 
 	return result
+}
+```
+
+## 判断子序列-[392](https://leetcode.cn/problems/is-subsequence/description/)
+题意可以转化成：求s、t的相同子序列长度，并判断相同子序列的长度是否等于len(s)。
+
+dp[i][j] 表示以s[i-1]、t[j-1]结尾的相同子序列长度。
+遍历s和t，有两种情况：
+<br>
+1、如果s[i] == t[j], 与[最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)一样
+<br>
+2、如果s[i] != t[j], 则需要剪掉t[j]字符，继续匹配，也就是：dp[i][j] = dp[i][j-1]
+> 与[最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)不同的是，并不再需要考虑剪掉s[i-1]（dp[i-1][j]）字符情况。因为s剪掉字符，不再符合题意。
+
+```go
+func isSubsequence(s string, t string) bool {
+	// dp[i][j] 表示以s[i-1]、t[j-1]结尾的相同子序列长度
+	dp := make([][]int, len(s)+1)
+	for i := 0; i < len(s)+1; i++ {
+		dp[i] = make([]int, len(t)+1)
+	}
+
+	for i := 1; i < len(s)+1; i++ { // 遍历子串
+		for j := 1; j < len(t)+1; j++ { // 遍历原始字符串
+			if s[i-1] == t[j-1] {
+				dp[i][j] = dp[i-1][j-1] + 1
+			}else {
+				// 原始字符串 剪掉当前字符，等于前一个字符的结果
+				dp[i][j] = dp[i][j-1] 
+			}
+		}
+	}
+
+	return dp[len(s)][len(t)] == len(s)
+}
+```
+
+## 两个字符串的删除操作-[583](https://leetcode.cn/problems/delete-operation-for-two-strings/description/)
+这道题也是类公共子序列问题。设 dp[i][j] 表示 word1[i-1]、word2[j-1] 处所需的最小步数。
+
+画一遍dp表，就有思路了：
+![img.png](../assets/images/img_62.png){:height="10%" width="50%"}
+
+双循环遍历 word1、word2，有两种情况：
+<br>
+1、word1[i] == word2[j]; 此时不需要裁剪word1、word2，结果直接等于dp[i-1][j-1]。
+<br>
+2、word1[i] != word2[j]; 此时需要裁剪word1 或 word2。有两种裁剪方式：
+> 第一种：裁剪word2，也就是在dp[i][j-1]，加多一步
+> <br>
+> 第二种：裁剪word1，也就是在dp[i-1][j]，加多一步
+>
+> Note: 在不理解，手画一遍dp 表，必懂。
+
+
+临界条件：
+<br>
+1、当 word1 为 `""`；
+<br>
+2、当 word2 为 `""`；
+
+得出转移方程：
+
+$$
+dp[i][j] =
+\begin{cases}
+dp[i-1][j-1], & \text{if } word1[i-1] == word2[j-1] \\[6pt]
+min(dp[i-1][j], dp[i][j-1]), & \text{if } word1[i-1] != word2[j-1] \\[6pt]
+\end{cases}
+$$
+
+```go
+func minDistance(word1 string, word2 string) int {
+	dp := make([][]int, len(word1)+1)
+	for i := 0; i < len(word1)+1; i++ {
+		dp[i] = make([]int, len(word2)+1)
+		dp[i][0] = i
+
+		if i == 0 {
+			for j := 0; j < len(word2)+1; j++ {
+				dp[i][j] = j
+			}
+		}
+	}
+
+	for i := 1; i < len(word1)+1; i++ {
+		for j := 1; j < len(word2)+1; j++ {
+			if word1[i-1] == word2[j-1] {
+				dp[i][j] = dp[i-1][j-1]
+			} else {
+				dp[i][j] = min(dp[i][j-1], dp[i-1][j]) + 1
+			}
+		}
+
+	}
+
+	return dp[len(word1)][len(word2)]
+}
+```
+
+## 编辑距离-[72](https://leetcode.cn/problems/edit-distance/description/)
+最终状态是 word1 与 word2 相等，八九不离十是子序列问题。
+
+设 dp[i][j] 表示在 word1[i-1]、word2[j-1] 处，所需要最少操作数。
+
+画出dp表，思路就清晰了：
+```
+      ""    r     o     s   
+   +-----+-----+-----+-----+
+"" |  0  |  1  |  2  |  3  |
+   +-----+-----+-----+-----+
+ h |  1  |  1  |  2  |  3  |
+   +-----+-----+-----+-----+
+ o |  2  |  2  |  1  |  2  |
+   +-----+-----+-----+-----+
+ r |  3  |  2  |  2  |  2  |
+   +-----+-----+-----+-----+
+ s |  4  |  3  |  3  |  2  |
+   +-----+-----+-----+-----+
+ e |  5  |  4  |  4  |  3  |
+   +-----+-----+-----+-----+
+```
+
+
+遍历 word1 和 word2。有两种情况：
+<br>
+1、word1[i-1] == word2[j-1]；不需要任何操作，即：dp[i][j] == dp[i-1][j-1]
+<br>
+2、word1[i-1] != word2[j-1]；需要 1 步操作
+- word1 删除一个字符；即 dp[i][j] == dp[i-1][j] + 1；如上表	dp[3][2]
+- word2 删除一个字符；即 dp[i][j] == dp[i][j-1] + 1；如上表	dp[1][2]
+- word1、word2 增加相同的字符；即 dp[i][j] == dp[i-1][j-1] + 1；如上表 dp[3][3]
+
+
+状态转移方程：
+
+$$
+dp[i][j] =
+\begin{cases}
+dp[i-1][j-1], & \text{if } word1[i-1] == word2[j-1] \\[6pt]
+min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]), & \text{if } word1[i-1] != word2[j-1] \\[6pt]
+\end{cases}
+$$
+
+```go
+func minDistance(word1 string, word2 string) int {
+	dp := make([][]int, len(word1) + 1)
+	for i := 0; i < len(word1) + 1; i ++ {
+		dp[i] = make([]int, len(word2) + 1)
+		dp[i][0] = i
+	}
+	for j := 0 ;j < len(word2) + 1; j ++ {
+		dp[0][j] = j
+	}
+
+	for i := 1 ; i <len(word1) + 1; i ++ {
+		for j := 1; j <len(word2) + 1; j ++ {
+			if word1[i-1] == word2[j-1] {
+				dp[i][j] = dp[i-1][j-1]
+			}else {
+				dp[i][j] = min(dp[i-1][j-1],min(dp[i][j-1], dp[i-1][j])) + 1
+			}
+		}
+
+		fmt.Print(dp[i])
+	}
+
+	return dp[len(word1)][len(word2)]
+}
+```
+## 回文子串-[647](https://leetcode.cn/problems/palindromic-substrings/description/)
+根据回文字符串特点：对于一个字符串，如 `cbabc`，`bab`子串是回文数，s[0] 与 s[4] 相等，那么该字符串也是回文数。
+
+**动态规划讲究把问题拆分成子问题。**
+
+设 dp[start][end] 表示字符串 s[start: end] （左闭右闭）是否为回文数
+> 为什么不能定义dp[start][end] 表示字符串中 回文子串 的数目?
+> 
+> 答：核心是能不能拆分成子问题；根据回文子串特点，并不是依赖前 i-1 个子字符，而是依赖s[start-1: end-1]
+
+
+s[start: end] 有2种情况：
+<br>
+1、s[start] != s[end]；那么这个子串不可能是回文子串
+<br>
+2、s[start] == s[end]；又分几种情况
+- 1 个字符；即start == end，那必须是回文子串
+- 2 个字符；即end - start == 1，那也是回文子串
+- 2 个字符以上；即end -start > 1，也是去掉头尾，还是一个回文子串，也就是 dp[start][end] = dp[start+1][end-1]
+- 其他场景都不是回文子串
+
+根据以上分析，存在转移方程：dp[start][end] = dp[start+1][end-1]；所以dp 表的遍历顺序应该是**从小到上，从左到右**
+
+```go
+func countSubstrings(s string) int {
+	if len(s) == 0 {
+		return 0
+	}
+
+	dp := make([][]bool, len(s))
+	for i := 0; i < len(s); i++ {
+		dp[i] = make([]bool, len(s))
+	}
+
+	result := 0
+	// start 从下到上
+	for start := len(s) - 1; start >= 0; start-- {
+		// end 从左到右
+		for end := start; end < len(s); end++ {
+			if s[start] != s[end] {
+				continue
+			}
+
+			// 1个字符
+			if start == end {
+				dp[start][end] = true
+				result++
+			}
+			// 2个字符
+			if end-start == 1 {
+				dp[start][end] = true
+				result++
+			}
+
+			// 大于2个字符
+			if end-start > 1 && dp[start+1][end-1] {
+				dp[start][end] = true
+				result++
+			}
+		}
+	}
+
+	return result
+}
+```
+
+## 最长回文子序列-[516](https://leetcode.cn/problems/longest-palindromic-subsequence/description/)
+
+设 dp[start][end] 表示 s[start:end]（左闭右闭）最长回文子序列长度。
+
+有以下几种情况：
+<br>
+1个字符；即 satrt == end，则 dp[start][end] == 1
+<br>
+2个字符；即 end - start = 1，
+- 当 s[start] != s[end]; dp[start][end] == 1
+- 当 s[start] == s[end]; dp[start][end] == 2
+<br>
+大于2个字符；即 end - start > 1
+- 当 s[start] == s[end]; s[start]、s[end] 追加到字符s[start + 1][end - 1]会产生更长的回文子序列，则 dp[start][end] = dp[start + 1][end - 1] + 1
+- 当 s[start] != s[end]; 需要对比s[start] 或 s[end] 追加到字符s[start + 1][end - 1]哪种情况产生的回文子序列长度最大，则 dp[start][end] = max(dp[start+1][end], dp[start][end -1])
+
+
+通过以上分析，dp[start][end] 依赖 dp[start + 1][end-1]、dp[start + 1][end]、dp[start][end - 1]，得出dp表的填充顺序是：**从下到上，从左到右**
+
+```go
+func longestPalindromeSubseq(s string) int {
+	if len(s) == 0 {
+		return 0
+	}
+
+	dp := make([][]int, len(s))
+	for i := range dp {
+		dp[i] = make([]int, len(s))
+	}
+
+	for start := len(s) - 1; start >= 0; start-- {
+		for end := start; end < len(s); end++ {
+			// 一个字符
+			if start == end {
+				dp[start][end] = 1
+			}
+
+			// 2个字符
+			if end-start == 1 {
+				if s[start] == s[end] {
+					dp[start][end] = 2
+				} else {
+					dp[start][end] = 1
+				}
+			}
+
+			// 大于2个字符
+			if end-start > 1 {
+				if s[start] == s[end] {
+					dp[start][end] = dp[start+1][end-1] + 2
+				} else {
+					dp[start][end] = max(dp[start+1][end], dp[start][end -1])
+				}
+			}
+		}
+	}
+
+	return dp[0][len(s)-1]
 }
 ```
