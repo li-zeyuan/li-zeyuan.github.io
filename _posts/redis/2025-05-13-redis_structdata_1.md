@@ -1,7 +1,7 @@
 ---
 title: Redis数据结结构及底层原理
 date: 2025-05-13 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware, redis]
 tags: [redis]
 author: ahern
 ---

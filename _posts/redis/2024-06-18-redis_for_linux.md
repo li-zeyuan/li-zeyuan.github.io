@@ -1,7 +1,7 @@
 ---
 title: Linux源码安装Redis
 date: 2024-06-18 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware, redis]
 tags: [redis]
 author: ahern
 ---

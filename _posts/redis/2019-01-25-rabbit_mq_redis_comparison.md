@@ -1,7 +1,7 @@
 ---
 title: RabbitMQ、Redis消息队列对比
 date: 2019-01-25 00:00:00 +0800
-categories: [root, redis]
+categories: [middleware, redis]
 tags: [redis, rabbit_mq]
 author: ahern
 ---

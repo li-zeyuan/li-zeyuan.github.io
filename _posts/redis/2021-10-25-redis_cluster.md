@@ -1,7 +1,7 @@
 ---
 title: Redis高可用
 date: 2021-10-25 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware, redis]
 tags: [redis]
 author: ahern
 ---

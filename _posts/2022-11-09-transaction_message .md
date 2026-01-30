@@ -1,7 +1,7 @@
 ---
 title: 事务消息
 date: 2022-11-09 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware]
 tags: [rocket_mq, mms]
 author: ahern
 ---

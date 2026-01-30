@@ -1,7 +1,7 @@
 ---
 title: Linux二进制安装Mysql
 date: 2024-06-18 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware, mysql]
 tags: [mysql]
 author: ahern
 ---

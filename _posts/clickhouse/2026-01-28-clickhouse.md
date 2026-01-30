@@ -1,11 +1,14 @@
 ---
-title: Clickhouse笔记
-date: 2024-03-29 00:00:00 +0800
-categories: [root, clickhouse]
+title: Clickhouse学习笔记
+date: 2026-01-29 00:00:00 +0800
+categories: [middleware, clickhouse]
 tags: [clickhouse]
 author: ahern
+
 ---
+
 ## 概述
+
 - 端口8123：tcp转发
 - 端口9000：http转发
 - 端口9009：interserverHTTPPort
@@ -15,25 +18,74 @@ author: ahern
 - 写入建议：一批大于1000行，或每秒不超过一个写入请求
 
 ## 数据类型
+
+### 常见类型
+
 - 整型：Int8、Int16、Int32、Int64；UInt8、UInt16、UInt32、UInt64
 - 浮点型：Float32、Float64
 - 布尔值：无该类型，用UInt8代替
 - 字符串：String，FixedString(N)
 - 时间类型：Date，Datetime，Datetime64
-- LowCardinality: 对数据类型进行二次字典编码；修改底层数据存储
-- 适用场景：原始数据冗长，去重后的计数值<1000
-- 优点：降低磁盘存储空间，提高查询性能
-- 缺点：写性能有所下降
-- 参考
-- https://blog.csdn.net/jiangshouzhuang/article/details/103268340
-- https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup19/string_optimization.pdf
-- https://blog.csdn.net/jiangshouzhuang/article/details/103268340
-- 枚举：对比LowCardinality，枚举更加适合静态字典的场景
-- 数组
+
+### 数组
+
 - 不推荐多维数组
 - 参考：https://clickhouse.com/docs/en/sql-reference/data-types/
 
-##  目录结构
+### LowCardinality
+
+对数据类型进行二次**字典编码**；修改底层数据存储
+
+- 适用场景：原始数据冗长，去重后的计数值<1000
+
+- 优点：降低磁盘存储空间，提高查询性能
+
+- 缺点：写性能有所下降
+
+- 参考
+
+- https://blog.csdn.net/jiangshouzhuang/article/details/103268340
+
+- https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup19/string_optimization.pdf
+
+- https://blog.csdn.net/jiangshouzhuang/article/details/103268340
+
+### Map
+
+- 本质上是一种语法糖，底层是两个等长数组：`keys Array(K)` + `values Array(V)`
+
+- 不保证 key 唯一性
+
+- KV 都是强类型
+
+### [AggregateFunction](https://clickhouse.com/docs/sql-reference/data-types/aggregatefunction)
+
+- 以二进制形式存储中间态数据，不同数据类型，底层辅助结构不同，如uniq 的 hash set
+
+- insert 时调用 state 类函数（如[MinState、MaxState](https://clickhouse.com/docs/sql-reference/aggregate-functions/combinators#-state)）生成中间状态，select 时调用 merge 类函数（如[MinMerge、MaxMerge](https://clickhouse.com/docs/sql-reference/aggregate-functions/combinators#-merge)）读取最终结果
+
+- 占用存储空间大
+
+- 常用于求**集合状态** ，如topK、 unique 场景
+
+### [SimpleAggregateFunction](https://clickhouse.com/docs/sql-reference/data-types/simpleaggregatefunction)
+
+- 和普通数据类型列一样。如`SimpleAggregateFunction(sum, UInt64)`底层就是`UInt64`列，没有中间态数据，没有额外辅助结构
+  
+  > 为什么不直接定义普通数据列？如 UInt64
+  > 
+  > 答：因为在 merge 阶段，SimpleAggregateFunction可以做聚合操作（如 sum，max，min），而普通类型不支持 merge 聚合。SimpleAggregateFunction一般搭配[AggregatingMergeTree](https://clickhouse.com/docs/engines/table-engines/mergetree-family/aggregatingmergetree)表引擎
+
+- 占用存储空间小
+
+- 常用于求单一结果，如min、max、sum 场景
+
+### 枚举
+
+对比LowCardinality，枚举更加适合静态字典的场景
+
+## 目录结构
+
 ```
 root@/data/clickhouse# tree -L 1
 .
@@ -74,7 +126,9 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 |-- partition.dat                   // 分区信息
 `-- primary.idx                     // 主键索引
 ```
+
 ## partition命名规则
+
 ```
 20220917_1_1_0
 [分区名]-[最小分区块编号]-[最大分区块编号]-[合并数次]
@@ -87,6 +141,7 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 ## 表引擎
 
 #### MergeTree
+
 - 支持索引和分区
 - partition by（optional）：指定分区规则，一般是按时间
 - primary key（optional）：主键，只提供一级索引，没有唯一约束
@@ -96,6 +151,7 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 参考：https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree
 
 #### ReplacingMergeTree
+
 - 在MergeTree的基础上增加去重功能
 - 入参为版本字段：如engine =ReplacingMergeTree(create_time)
 - 根据order by字段进行去重，不能跨分区去重
@@ -103,6 +159,7 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 参考：https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/replacingmergetree
 
 #### SummingMergeTree
+
 - 入参为需要汇总的字段：如ENGINE = SummingMergeTree([columns])
 - 以order by列为维度
 - 同一分区才会做聚合处理
@@ -110,7 +167,9 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 参考：https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/summingmergetree
 
 #### Distributed
+
 ![img.png](./assets/images/img_2.png){:height="10%" width="50%"}
+
 - 分布式表：逻辑表，对该表进行操作时，会被路由到本地，然后汇总结果返回给用户
 - 本地表：实际存储数据的表
 - 常见分布式集群方案：
@@ -123,23 +182,28 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - https://www.cnblogs.com/yisany/p/13524018.html
 
 #### \*MergeTree与Replicated\*MergeTree区别
+
 - \*MergeTree数据同步依赖数据库同步机制，不依赖zookeeper
 - Replicated\*MergeTree依赖zookeeper
 - 参考：https://juejin.cn/post/6875235444909408263
 
 ## 索引（MergeTree）
+
 参考：https://sobriver.top/2021/07/07/%E7%BC%96%E7%A8%8B/clickhouse/clickhouse%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/
 
 #### 主键索引
+
 - 没有唯一约束
 - 稀疏索引；不是每行数据都建立索引，而是在固定间隔（8192行）生成索引标记
 - 由建表语句index_granularity指定索引粒度，默认8192
 
 #### 分区索引
+
 - 记录分区下分区字段对应原始数据的最小和最大值
 - 查询语句指定分区字段时，通过该索引快速定位到分区
 
 #### 跳数索引
+
 - INDEX index_name expr TYPE type(...) GRANULARITY granularity_value，type：minmax, set, bloom_filter等
 - minmax：指定一个值范围
 - set(max_rows)：保存表达式去重复后值，适用重复性高的字段
@@ -148,21 +212,27 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - tokenbf_v1(size_of_bloom_filter_in_bytes, number_of_hash_functions, random_seed)：适用全文搜索
 
 #### 排序key
+
 - 不是传统意义上的索引，决定数据在磁盘上的物理排序
 - 分区数据按order by字段排序，显著提升范围查询和排序操作的性能
 
 #### 参考
+
 - 类型：https://clickhouse.com/docs/en/guides/improving-query-performance/skipping-indexes#skip-index-types
 - 布隆过滤器参数计算：https://hur.st/bloomfilter/
 - https://blog.csdn.net/haveanybody/article/details/123919938
 
 ## explain
+
 #### 是否走索引
+
 - explain indexes = 1
 - https://www.modb.pro/db/161379
 
 ## 副本同步原理
+
 ![img.png](https://raw.githubusercontent.com/li-zeyuan/access/master/img/202210241830075.png){:height="10%" width="50%"}
+
 - 1、client向某个server1发送写入请求
 - 2、server1写入本地
 - 3、同步operation log到zookeeper
@@ -173,14 +243,17 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 2、zookeeper不参与实质的data数据传输，只负责log同步
 
 ## 分区操作
+
 - 参考：https://clickhouse.com/docs/en/sql-reference/statements/alter/partition
 
 ## 数据压缩
+
 - 数据类型存储：https://aop.pub/artical/database/clickhouse/datatype-storage/
 - 压缩算法选型：https://blog.csdn.net/neweastsun/article/details/130974311；https://chistadata.com/compression-algorithms-and-codecs-in-clickhouse/
 - 压缩算法：https://developer.aliyun.com/article/780586
 
 ## 参数调优
+
 在system.settings表中可查
 
 - background_pool_size：后台线程池大小，影响merge partition速度，默认16，建议为cpu个数2倍
@@ -188,7 +261,9 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - max_table_size_to_drop: 删除分区时，限制的可删除大小
 
 速度，
+
 ## 总结
+
 - clickhouse采用列式存储，适合OLAP场景
 - 多种数据类型，不支持Bool，LowCardinality对数据类型进行二次编码
 - 常用MergeTree序列表引擎，关键字段：partition by，primary key，order by，settings
@@ -196,8 +271,8 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 常用分区操作
 
 ## 参考
+
 - 官方文档：https://clickhouse.com/docs/en/intro
 - https://blog.csdn.net/qq_40378034/article/details/120256757
 - BitMap及其在ClickHouse中的应用：https://zhuanlan.zhihu.com/p/480345952
 - 主键/索引/工作原理：https://clickhouse.com/docs/zh/guides/improving-query-performance
-

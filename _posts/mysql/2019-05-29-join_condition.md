@@ -1,7 +1,7 @@
 ---
 title: join接条件and、where区别
 date: 2019-05-29 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware, mysql]
 tags: [mysql]
 author: ahern
 ---

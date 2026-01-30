@@ -1,7 +1,7 @@
 ---
 title: Mysql慢查询优化
 date: 2019-01-25 00:00:00 +0800
-categories: [root, middleware]
+categories: [middleware, mysql]
 tags: [mysql]
 author: ahern
 ---
