@@ -4,13 +4,13 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-<h2 align="center"> 👋 𝗛𝗲𝗹𝗹𝗼 𝗜'𝗺 LiZeyuan 👨‍💻 </h2>
+<h2 align="center"> 👋 𝗛𝗲𝗹𝗹𝗼 𝗜'𝗺 Ahern 👨‍💻 </h2>
 <img align="right" width="320" src="https://media1.giphy.com/media/13HgwGsXF0aiGY/giphy.gif" alt="Coding"/>
 
 ## 📖 Introduction
 <ul>
   <!--   <li> 🔍 &nbsp; I'm currently looking for job</li> -->
-  <li> 💻 &nbsp; A backend developer, <a href="https://github.com/open-telemetry/opentelemetry-collector-contrib/commits?author=li-zeyuan">OpenTelemetry contributor</a>, based ShenZhen, China</li>
+  <li> 💻 &nbsp; A backend developer, <a href="https://github.com/open-telemetry/opentelemetry-collector-contrib/commits?author=ahern-pro">OpenTelemetry contributor</a>, based ShenZhen, China</li>
   <li> 🎯 &nbsp; Learning about <a href="https://en.wikipedia.org/wiki/Large_language_model" target="_blank">LLM</a> recently</li>
   <li> 🧐 &nbsp; Want to full-stack engineer. Recent focus on frontend.</li>
   <li> 🔭 &nbsp; In spare time, coding, swimming or hiking.</li>
@@ -20,7 +20,7 @@ order: 4
       <ul>
         <li> <strong> Email:</strong> lzyutf8@163.com
           <div>
-            <img src="https://visitor-badge.laobi.icu/badge?page_id=li-zeyuan.li-zeyuan" alt="Profile Views." />
+            <img src="https://visitor-badge.laobi.icu/badge?page_id=ahern-pro.ahern-pro" alt="Profile Views." />
           </div>
         </li>
       </ul>
