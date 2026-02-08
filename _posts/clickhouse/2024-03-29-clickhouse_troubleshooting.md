@@ -1,7 +1,7 @@
 ---
 title: Clickhouse故障排查
 date: 2024-03-29 00:00:00 +0800
-categories: [root, clickhouse]
+categories: [middleware, clickhouse]
 tags: [clickhouse,troubleshooting]
 author: ahern
 ---
