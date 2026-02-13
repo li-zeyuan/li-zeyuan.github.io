@@ -9,10 +9,15 @@ author: ahern
 ## 操作系统基础
 
 #### COW（写时复制）
-https://segmentfault.com/a/1190000039869422
+Linux系统中，fork 子进程时，并不会立即把父进程所有内存页复制一份。而是在父进程/子进程对内存页修改时才进行复制。
+
+> 参考[Linux 写时复制机制原理](https://segmentfault.com/a/1190000039869422)
+
 
 #### CAS（对比和交换）
-https://blog.csdn.net/Baronrothschlid/article/details/102010798
+CUP 对比寄存器中值是否等于内存中的值，如果相等，则写入新值
+
+> [彻底弄懂CAS（比较并交换）](https://blog.csdn.net/Baronrothschlid/article/details/102010798)
 
 存在问题
 1. ABA问题；解决：采用版本号
@@ -21,11 +26,10 @@ https://blog.csdn.net/Baronrothschlid/article/details/102010798
 
 #### LOCK 指令
 
-总线锁：该CPU独享共享内存，其他CPU对内存的读写请求会阻塞，开销大
+- 总线锁：该CPU独享共享内存，其他CPU对内存的读写请求会阻塞，开销大
+- 缓存锁：若访问的内存区域已经存在CPU缓存行，则会对缓存行进行锁定，其他CPU将不能缓存此数据，开销小
 
-缓存锁：若访问的内存区域已经存在CPU缓存行，则会对缓存行进行锁定，其他CPU将不能缓存此数据，开销小
-
-参考：https://albk.tech/%E8%81%8A%E8%81%8ACPU%E7%9A%84LOCK%E6%8C%87%E4%BB%A4.html
+> 参考[聊聊CPU的LOCK指令](https://albk.tech/%E8%81%8A%E8%81%8ACPU%E7%9A%84LOCK%E6%8C%87%E4%BB%A4.html)
 
 #### 缓存一致性协议（难点）
 https://www.infoq.cn/article/cache-coherency-primer

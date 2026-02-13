@@ -38,7 +38,7 @@ author: ahern
 
 - go内存管理
 
-  ​		![go内存管理](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210130133635.png){:height="10%" width="50%"}
+  ![go内存管理](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210130133635.png){:height="10%" width="50%"}
 
   - 主要指堆、栈内存的分配和回收
   - 借鉴了TCMalloc内存分配思想：缓存、分级分配
@@ -48,13 +48,13 @@ author: ahern
 
   ![分级分配](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210130133811.png){:height="10%" width="50%"}
 
-  - page：内存被划分成大小不等的页
-  - span（跨度）：内存管理的基本单位，一组连续的page组成一个span
+  - page：内存被划分成大小不等的页，Go 选择 8KB page
+  - span（跨度）：内存管理的基本单位，一组连续的page组成一个span，GC 是按 span 扫描的
   - mcache：类似TCMalloc的线程缓存，go的每个P挂载一个mcache，可以无锁访问
   - mcentral：类似TCMalloc的中心缓存，线程共享，需要加锁访问
   - mheap：与TCMalloc中的PageHeap类似，也需要加锁访问
 
-- go小对象分配
+- go Tiny、小对象（32KB）分配
 
   - 1、计算对象所需要的内存大小
   - 2、跟进转化表，找出所属的span（跨度）
@@ -63,7 +63,7 @@ author: ahern
   - 5、若mcentral中也不够，向mheap申请
   - 6、mheap向os申请
 
-- go大对象分配
+- go 大对象分配
 
   - 直接向mheap申请
 
@@ -75,15 +75,15 @@ author: ahern
 
 ### 内存管理-垃圾回收
 
-- 回收机制：并行
+标记-清除（v1.26前）
 
-  - 三色标记			
+  - 工作原理		
     ![三色标记法](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210130133912.png){:height="10%" width="50%"}
 
     - 1、初始状态，所有的对象都是白色
     - 2、从根对象开始扫描，将引用的对象标记成灰色
     - 3、分析灰色对象是否引用了其他对象，若无，标记自己成白色；若有，将自己标记成黑色，将引用对象标记成灰色
-    - 重复2、3步骤，直到所有的对象都变成黑或白。白色对象即是要被回收的垃圾
+    - 重复 2、3 步骤，直到所有的对象都变成黑或白。白色对象即是要被回收的垃圾
 
   - 写屏障
 
@@ -91,14 +91,29 @@ author: ahern
     - 每一轮的GC都会初始化一个屏障，记录对象的状态。以便和第二轮的对象状态对比，引用状态变化的标记为灰色防止丢失，状态未变化的对象继续处理。
 
   - 辅助GC
-
     - 如果GC的速度小于用户程序分配对象的速度，就会把用户程序暂停（STW）
 
-- GC触发条件
+<br>
+Green Tea：按页扫描 + 向量化加速（v1.26后）
+
+[工作原理](https://mp.weixin.qq.com/s/W75ulkZU06-zLdfj3F_a-w#:~:text=%E5%AF%B9%E8%B1%A1%E6%A7%BD%E4%BD%8D%E3%80%82-,Green%20Tea%20%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%EF%BC%9F,-%E6%88%91%E4%BB%AC%E8%BF%98%E6%98%AF%E7%94%A8)：
+![img.png](./assets/images/img_64.webp){:height="70%" width="70%"}
+- 1、每个对象增加两个 bit 元数据，用于记录对象是否被扫描过和是否被标记为垃圾
+- 2、从根对象出发，发现对象则把整页加入工作列表，而不是单个对象
+- 3、**关键**；当发现页存在多个对象需要扫描，则一次性扫描多个相邻对象（利用了 CPU 页缓存）
+
+> AVX-512 向量指令可以加速扫描过程，一次性扫描页上所有对象
+
+
+<br>
+GC触发条件
   - 超过内存的阈值
   - 到达特定的时间
   - 手动GC
-- 参考
+
+<br>
+参考
+  - [Green Te GC](https://mp.weixin.qq.com/s/W75ulkZU06-zLdfj3F_a-w)
   - https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-garbage-collector/
   - https://juejin.cn/post/6844903917650722829
 
