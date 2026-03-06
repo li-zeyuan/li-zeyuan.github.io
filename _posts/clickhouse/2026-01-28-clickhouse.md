@@ -246,8 +246,31 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 
 - 参考：https://clickhouse.com/docs/en/sql-reference/statements/alter/partition
 
-## 数据压缩
+## 数据与压缩压缩
+> Clickhouse 的压缩比由**编码算法**和**压缩算法**共同决定。
 
+
+### 编码算法
+- Delta：存储每行与前一行的差值
+- DoubleDelta：两阶段Delta（数据Delta后，在Delta）。正确使用，压缩比比Delta更高
+
+| 编码             | 原理   | 适合场景    |
+| -------------- | ---- | ------- |
+| Delta          | 存储每行与前一行的差值 | 递增数据，如：时间戳、ID  |
+| DoubleDelta    | 二阶Delta，数据Delta后，再Delta | 固定间隔序列，如：时间序列    |
+| Gorilla        | 如果两个浮点数 变化很小，那么 XOR 后只有少量 bit 不同。只存变化的 bit | metrics |
+| T64            | 删除高位为 0 的 bit | 小整数    |
+| LowCardinality | 字典编码 | 枚举      |
+
+### 压缩算法
+
+| 压缩             | 原理 |压缩率|压缩速度| 解压速度 | 适合场景    |
+| -------------- | ---- |  ---- | ---- | ---- | ------- |
+| LZ4          | 用“引用历史数据的位置”代替重复的数据。|低 | 极快|极快| Clickhouse默认  |
+| ZSTD          | LZ77（类似LZ4）+ 熵编码（高频数据 → 短编码；低频数据 → 长编码）|高 | 中|快| 通用推荐  |
+| ZSTD(level)   | ZSTD变种 |很高 | 慢 |中| 冷数据  |
+
+### 参考：
 - 数据类型存储：https://aop.pub/artical/database/clickhouse/datatype-storage/
 - 压缩算法选型：https://blog.csdn.net/neweastsun/article/details/130974311；https://chistadata.com/compression-algorithms-and-codecs-in-clickhouse/
 - 压缩算法：https://developer.aliyun.com/article/780586
