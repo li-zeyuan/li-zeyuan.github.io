@@ -497,32 +497,9 @@ set-max-intset-entries ，intset最大元素个数，默认512
 ## ZSet
 ### 概述
 
-Redis 中的 zset 是一种有序集合类型，它可以存储不重复的字符串元素，并且给每个元素赋予一个排序权重值（score）。Redis 通过权重值来为集合中的元素进行从小到大的排序。zset 的成员是唯一的，但权重值可以重复。一个 zset 类型的键最多可以存储 2^32 - 1 个元素。
-
-Redis中zset源码
-
-```
-typedef struct zskiplistNode {
-  sds ele;
-  double score;
-  struct zskiplistNode *backward;
-  struct zskiplistLevel {
-    struct zskiplistNode *forward;
-    unsigned long span;
-  } level[];
-} zskiplistNode;
-
-typedef struct zskiplist {
-  struct zskiplistNode *header, *tail;
-  unsigned long length;
-  int level;
-} zskiplist;
-
-typedef struct zset {
-  dict *dict;
-  zskiplist *zsl;
-} zset;
-```
+Redis 中的 zset 是一种有序集合类型
+- 元素不可以重复
+- score可以重复
 
 ### 应用场景
 
@@ -534,19 +511,9 @@ zset 类型的应用场景主要是利用分数和排序的特性，比如：
 
 ### 底层原理
 
-Redis在存储zset结构的数据，为了达到内存和性能的平衡，针对少量存储和大量存储分别设计了两种结构，分别为：
-
-- ziplist（redis7.0之前使用）和listpack（redis7.0之后使用）
-- skiplist
-
-当 zset 中的元素个数和元素值的长度比较小的时候，Redis 使用ziplist/listpack来节省内存空间。当 zset 中的元素个数和元素值的长度达到一定阈值时，Redis 会自动将ziplist/listpack转换为skiplist，以提高操作效率
-
-具体来说，当 zset 同时满足以下两个条件时，会使用 listpack作为底层结构：
-
-- 元素个数小于 zset_max_listpack_entries ，默认值为 128
-- 元素值的长度小于zset_max_listpack_value，默认值为 64
-
-当 zset 中不满足以上两个条件时，会使用 skiplist 作为底层结构。
+skiplist + 哈希表
+- skiplist：节点保存`<score + member>`, 按 score 升序排列,支持 O(log n) 插入、删除、排名查询
+- 哈希表: `member -> score` 映射, 支持 O(1) 查找元素是否存在 / 更新 score
 
 #### skiplist
 
