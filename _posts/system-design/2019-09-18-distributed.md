@@ -8,7 +8,14 @@ author: ahern
 
 ### 分布式事务解决方案
 
-#### 2PC
+#### 方案1: 可靠MQ（kafka） + 本地事务
+本地事务执行数据库更新 + 发生MQ，实现最终一致性
+
+
+
+适合高并发场景，如电商下单
+
+#### 方案2: 2PC
 
 ![](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210306203256.png){:height="10%" width="50%"}
 
@@ -22,19 +29,10 @@ author: ahern
 - 数据不一致：若第二阶段，某数据库网络不可达，其他数据已经提交，这样就导致数据不一致问题
 ````
 
-#### TCC
 
-![](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210306204938.png){:height="10%" width="50%"}
+适用于金融转账场景
 
-- Try阶段：尝试执行，检查节点系统，预留资源
-- Confirm阶段：确认执行，仅对try阶段预留的资源进行操作
-- Cancel阶段：释放try阶段预留的资源
-
-#### 本地消息表
-
-- 将分布式消息存储到数据表，由定时任务去轮询这张消息表，将消息消费掉，适合弱一致性的场景
-
-#### MQ事务
+#### 方案3: 事务消息（RocketMQ）
 
 ![](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210306210120.png){:height="10%" width="50%"}
 
@@ -43,11 +41,22 @@ author: ahern
 - 3、若本地事务执行成功，确认prepared消息
 - 4、消费者消费消息
 
+
+
+与方案1类似，也是也是实现最终一致性。
+
+#### 方案4: TCC
+
+![](https://raw.githubusercontent.com/li-zeyuan/access/master/img/20210306204938.png){:height="10%" width="50%"}
+
+- Try阶段：尝试执行，检查节点系统，预留资源
+- Confirm阶段：确认执行，仅对try阶段预留的资源进行操作
+- Cancel阶段：释放try阶段预留的资源
+
+### 分布式id
 - 全局唯一
 - 递增、不连续
 - 高可用、高性能
-
-### 分布式id
 
 #### 数据库自增id
 

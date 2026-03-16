@@ -120,7 +120,7 @@ author: ahern
 
 ### 实现一个算法，展示直播间送礼top 10用户
 方案1: 小顶堆 `Heap<user_id, total_value>` + 哈希表 `Map<user_id, total_value>`
-- 小顶堆快速维护 Top 10
+- 小顶堆快速维护 Top 10；堆操作时间复杂度 `O(logK)` ,整体时间复杂度 `O(N logK)`; 堆空间复杂度 `O(K)`
 - 哈希表快速查询某个用户总礼物金额
 
 方案2: Redis ZSet
