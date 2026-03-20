@@ -87,6 +87,18 @@ func gopanic(e interface{}) {
 }
 ```
 
+### recover 是否可以捕获到子goroutine painc？
+```
+goroutine
+    │
+    ├── panic stack
+    └── defer stack
+```
+
+不可以，因为 recover 需要 defer 函数执行；
+panic 和 defer 都是挂在当前 goroutine 的栈，goroutine 间不共享栈。
+
+
 ### panic 究竟是啥？是一个结构体？还是一个函数？
 
 - 背后执行gopanic函数
