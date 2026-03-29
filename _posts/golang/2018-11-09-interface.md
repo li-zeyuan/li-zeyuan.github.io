@@ -13,5 +13,7 @@ author: ahern
 
 ### 数据结构
 
+> type 和 data 同时为nil，该interface才是nil。
+
 - type：保存变量的类型
 - data：保存变量的值
