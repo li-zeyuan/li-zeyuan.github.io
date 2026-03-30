@@ -1,4 +1,5 @@
 ---
+
 title: Clickhouse学习笔记
 date: 2026-01-29 00:00:00 +0800
 categories: [middleware, clickhouse]
@@ -30,54 +31,40 @@ author: ahern
 ### 数组
 
 - 不推荐多维数组
-- 参考：https://clickhouse.com/docs/en/sql-reference/data-types/
+- 参考：[https://clickhouse.com/docs/en/sql-reference/data-types/](https://clickhouse.com/docs/en/sql-reference/data-types/)
 
 ### LowCardinality
 
 对数据类型进行二次**字典编码**；修改底层数据存储
 
 - 适用场景：原始数据冗长，去重后的计数值<1000
-
 - 优点：降低磁盘存储空间，提高查询性能
-
 - 缺点：写性能有所下降
-
 - 参考
-
-- https://blog.csdn.net/jiangshouzhuang/article/details/103268340
-
-- https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup19/string_optimization.pdf
-
-- https://blog.csdn.net/jiangshouzhuang/article/details/103268340
+- [https://blog.csdn.net/jiangshouzhuang/article/details/103268340](https://blog.csdn.net/jiangshouzhuang/article/details/103268340)
+- [https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup19/string_optimization.pdf](https://github.com/ClickHouse/clickhouse-presentations/blob/master/meetup19/string_optimization.pdf)
+- [https://blog.csdn.net/jiangshouzhuang/article/details/103268340](https://blog.csdn.net/jiangshouzhuang/article/details/103268340)
 
 ### Map
 
 - 本质上是一种语法糖，底层是两个等长数组：`keys Array(K)` + `values Array(V)`
-
 - 不保证 key 唯一性
-
 - KV 都是强类型
 
 ### [AggregateFunction](https://clickhouse.com/docs/sql-reference/data-types/aggregatefunction)
 
 - 以二进制形式存储中间态数据，不同数据类型，底层辅助结构不同，如uniq 的 hash set
-
 - insert 时调用 state 类函数（如[MinState、MaxState](https://clickhouse.com/docs/sql-reference/aggregate-functions/combinators#-state)）生成中间状态，select 时调用 merge 类函数（如[MinMerge、MaxMerge](https://clickhouse.com/docs/sql-reference/aggregate-functions/combinators#-merge)）读取最终结果
-
 - 占用存储空间大
-
 - 常用于求**集合状态** ，如topK、 unique 场景
 
 ### [SimpleAggregateFunction](https://clickhouse.com/docs/sql-reference/data-types/simpleaggregatefunction)
 
 - 和普通数据类型列一样。如`SimpleAggregateFunction(sum, UInt64)`底层就是`UInt64`列，没有中间态数据，没有额外辅助结构
-  
   > 为什么不直接定义普通数据列？如 UInt64
-  > 
+  >
   > 答：因为在 merge 阶段，SimpleAggregateFunction可以做聚合操作（如 sum，max，min），而普通类型不支持 merge 聚合。SimpleAggregateFunction一般搭配[AggregatingMergeTree](https://clickhouse.com/docs/engines/table-engines/mergetree-family/aggregatingmergetree)表引擎
-
 - 占用存储空间小
-
 - 常用于求单一结果，如min、max、sum 场景
 
 ### 枚举
@@ -148,7 +135,7 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - order by（required）：分区内排序，主键必须是order by字段的前缀字段
 - settings（optional）：一些额外控制参数，如index_granularity索引粒度，默认8192
 - TTL：支持列ttl，表级ttl
-- 参考：https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree
+- 参考：[https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree)
 
 #### ReplacingMergeTree
 
@@ -156,7 +143,7 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 入参为版本字段：如engine =ReplacingMergeTree(create_time)
 - 根据order by字段进行去重，不能跨分区去重
 - 在分区合并时才进行去重
-- 参考：https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/replacingmergetree
+- 参考：[https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/replacingmergetree](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/replacingmergetree)
 
 #### SummingMergeTree
 
@@ -164,11 +151,11 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 以order by列为维度
 - 同一分区才会做聚合处理
 - 分区合并时进行聚合
-- 参考：https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/summingmergetree
+- 参考：[https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/summingmergetree](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/summingmergetree)
 
 #### Distributed
 
-![img.png](./assets/images/img_2.png){:height="10%" width="50%"}
+img.png{:height="10%" width="50%"}
 
 - 分布式表：逻辑表，对该表进行操作时，会被路由到本地，然后汇总结果返回给用户
 - 本地表：实际存储数据的表
@@ -177,24 +164,26 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - MergeTree + Distributed+集群复制
 - ReplicatedMergeTree + Distributed
 - 参考
-- https://zhuanlan.zhihu.com/p/161242274
-- https://clickhouse.com/docs/en/engines/table-engines/special/distributed
-- https://www.cnblogs.com/yisany/p/13524018.html
+- [https://zhuanlan.zhihu.com/p/161242274](https://zhuanlan.zhihu.com/p/161242274)
+- [https://clickhouse.com/docs/en/engines/table-engines/special/distributed](https://clickhouse.com/docs/en/engines/table-engines/special/distributed)
+- [https://www.cnblogs.com/yisany/p/13524018.html](https://www.cnblogs.com/yisany/p/13524018.html)
 
-#### \*MergeTree与Replicated\*MergeTree区别
+#### MergeTree与ReplicatedMergeTree区别
 
-- \*MergeTree数据同步依赖数据库同步机制，不依赖zookeeper
-- Replicated\*MergeTree依赖zookeeper
-- 参考：https://juejin.cn/post/6875235444909408263
+- MergeTree数据同步依赖数据库同步机制，不依赖zookeeper
+- ReplicatedMergeTree依赖zookeeper
+- 参考：[https://juejin.cn/post/6875235444909408263](https://juejin.cn/post/6875235444909408263)
 
 ## 索引（MergeTree）
 
-参考：https://sobriver.top/2021/07/07/%E7%BC%96%E7%A8%8B/clickhouse/clickhouse%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/
+参考：[https://sobriver.top/2021/07/07/%E7%BC%96%E7%A8%8B/clickhouse/clickhouse%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/](https://sobriver.top/2021/07/07/%E7%BC%96%E7%A8%8B/clickhouse/clickhouse%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/)
 
 #### 主键索引
 
+> 低层数据结构是有序数组，采用二分查找
+
 - 没有唯一约束
-- 稀疏索引；不是每行数据都建立索引，而是在固定间隔（8192行）生成索引标记
+- 稀疏索引；不是每行数据都建立索引；保存每个granule的order by建最小值
 - 由建表语句index_granularity指定索引粒度，默认8192
 
 #### 分区索引
@@ -203,6 +192,8 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 - 查询语句指定分区字段时，通过该索引快速定位到分区
 
 #### 跳数索引
+
+> 作用于非主键列。没有固定的数据结构，默认4个granule生成一个元信息摘要，如: granule[1-4] -> minmax[1, 99]，granule[1-4] -> bloom()
 
 - INDEX index_name expr TYPE type(...) GRANULARITY granularity_value，type：minmax, set, bloom_filter等
 - minmax：指定一个值范围
@@ -218,20 +209,20 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 
 #### 参考
 
-- 类型：https://clickhouse.com/docs/en/guides/improving-query-performance/skipping-indexes#skip-index-types
-- 布隆过滤器参数计算：https://hur.st/bloomfilter/
-- https://blog.csdn.net/haveanybody/article/details/123919938
+- 类型：[https://clickhouse.com/docs/en/guides/improving-query-performance/skipping-indexes#skip-index-types](https://clickhouse.com/docs/en/guides/improving-query-performance/skipping-indexes#skip-index-types)
+- 布隆过滤器参数计算：[https://hur.st/bloomfilter/](https://hur.st/bloomfilter/)
+- [https://blog.csdn.net/haveanybody/article/details/123919938](https://blog.csdn.net/haveanybody/article/details/123919938)
 
 ## explain
 
 #### 是否走索引
 
 - explain indexes = 1
-- https://www.modb.pro/db/161379
+- [https://www.modb.pro/db/161379](https://www.modb.pro/db/161379)
 
 ## 副本同步原理
 
-![img.png](https://raw.githubusercontent.com/li-zeyuan/access/master/img/202210241830075.png){:height="10%" width="50%"}
+img.png{:height="10%" width="50%"}
 
 - 1、client向某个server1发送写入请求
 - 2、server1写入本地
@@ -244,36 +235,42 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 
 ## 分区操作
 
-- 参考：https://clickhouse.com/docs/en/sql-reference/statements/alter/partition
+- 参考：[https://clickhouse.com/docs/en/sql-reference/statements/alter/partition](https://clickhouse.com/docs/en/sql-reference/statements/alter/partition)
 
 ## 数据与压缩压缩
+
 > Clickhouse 的压缩比由**编码算法**和**压缩算法**共同决定。
 
-
 ### 编码算法
+
 - Delta：存储每行与前一行的差值
 - DoubleDelta：两阶段Delta（数据Delta后，在Delta）。正确使用，压缩比比Delta更高
 
-| 编码             | 原理   | 适合场景    |
-| -------------- | ---- | ------- |
-| Delta          | 存储每行与前一行的差值 | 递增数据，如：时间戳、ID  |
-| DoubleDelta    | 二阶Delta，数据Delta后，再Delta | 固定间隔序列，如：时间序列    |
-| Gorilla        | 如果两个浮点数 变化很小，那么 XOR 后只有少量 bit 不同。只存变化的 bit | metrics |
-| T64            | 删除高位为 0 的 bit | 小整数    |
-| LowCardinality | 字典编码 | 枚举      |
+
+| 编码             | 原理                                         | 适合场景          |
+| -------------- | ------------------------------------------ | ------------- |
+| Delta          | 存储每行与前一行的差值                                | 递增数据，如：时间戳、ID |
+| DoubleDelta    | 二阶Delta，数据Delta后，再Delta                    | 固定间隔序列，如：时间序列 |
+| Gorilla        | 如果两个浮点数 变化很小，那么 XOR 后只有少量 bit 不同。只存变化的 bit | metrics       |
+| T64            | 删除高位为 0 的 bit                              | 小整数           |
+| LowCardinality | 字典编码                                       | 枚举            |
+
 
 ### 压缩算法
 
-| 压缩             | 原理 |压缩率|压缩速度| 解压速度 | 适合场景    |
-| -------------- | ---- |  ---- | ---- | ---- | ------- |
-| LZ4          | 用“引用历史数据的位置”代替重复的数据。|低 | 极快|极快| Clickhouse默认  |
-| ZSTD          | LZ77（类似LZ4）+ 熵编码（高频数据 → 短编码；低频数据 → 长编码）|高 | 中|快| 通用推荐  |
-| ZSTD(level)   | ZSTD变种 |很高 | 慢 |中| 冷数据  |
+
+| 压缩          | 原理                                      | 压缩率 | 压缩速度 | 解压速度 | 适合场景         |
+| ----------- | --------------------------------------- | --- | ---- | ---- | ------------ |
+| LZ4         | 用“引用历史数据的位置”代替重复的数据。                    | 低   | 极快   | 极快   | Clickhouse默认 |
+| ZSTD        | LZ77（类似LZ4）+ 熵编码（高频数据 → 短编码；低频数据 → 长编码） | 高   | 中    | 快    | 通用推荐         |
+| ZSTD(level) | ZSTD变种                                  | 很高  | 慢    | 中    | 冷数据          |
+
 
 ### 参考：
-- 数据类型存储：https://aop.pub/artical/database/clickhouse/datatype-storage/
-- 压缩算法选型：https://blog.csdn.net/neweastsun/article/details/130974311；https://chistadata.com/compression-algorithms-and-codecs-in-clickhouse/
-- 压缩算法：https://developer.aliyun.com/article/780586
+
+- 数据类型存储：[https://aop.pub/artical/database/clickhouse/datatype-storage/](https://aop.pub/artical/database/clickhouse/datatype-storage/)
+- 压缩算法选型：[https://blog.csdn.net/neweastsun/article/details/130974311；https://chistadata.com/compression-algorithms-and-codecs-in-clickhouse/](https://blog.csdn.net/neweastsun/article/details/130974311；https://chistadata.com/compression-algorithms-and-codecs-in-clickhouse/)
+- 压缩算法：[https://developer.aliyun.com/article/780586](https://developer.aliyun.com/article/780586)
 
 ## 参数调优
 
@@ -295,7 +292,8 @@ root@/data/clickhouse/data/data/{database}/{table}/{patition}# tree -L 1
 
 ## 参考
 
-- 官方文档：https://clickhouse.com/docs/en/intro
-- https://blog.csdn.net/qq_40378034/article/details/120256757
-- BitMap及其在ClickHouse中的应用：https://zhuanlan.zhihu.com/p/480345952
-- 主键/索引/工作原理：https://clickhouse.com/docs/zh/guides/improving-query-performance
+- 官方文档：[https://clickhouse.com/docs/en/intro](https://clickhouse.com/docs/en/intro)
+- [https://blog.csdn.net/qq_40378034/article/details/120256757](https://blog.csdn.net/qq_40378034/article/details/120256757)
+- BitMap及其在ClickHouse中的应用：[https://zhuanlan.zhihu.com/p/480345952](https://zhuanlan.zhihu.com/p/480345952)
+- 主键/索引/工作原理：[https://clickhouse.com/docs/zh/guides/improving-query-performance](https://clickhouse.com/docs/zh/guides/improving-query-performance)
+
