@@ -41,5 +41,32 @@ author: ahern
   - 一般使用slice
   - 不确定len用 `slice`，确定大小使用`array`。
 
-### 完整表达式：a[low:high:max]
-- 完整切片表达式：http://www.jalen-qian.com/p/go%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E4%B9%8B%E5%88%87%E7%89%87/
+### 完整表达式
+作用于 Array 和 Slice
+
+```
+a[low : high : max]
+     |    |     |
+     |    |     └── cap 的右边界（cap = max - low）
+     |    └──────── len 的右边界（len = high - low）
+     └───────────── 起始位置
+```
+
+```
+original := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+//                           底层数组
+//  index:  0  1  2  3  4  5  6  7  8  9
+
+s1 := original[2:5]    // [2,3,4]  cap=8  可以看到 index 2~9
+s2 := original[2:5:6]  // [2,3,4]  cap=4  只能看到 index 2~5
+s3 := original[2:5:5]  // [2,3,4]  cap=3  只能看到 index 2~4
+
+// s1 append 不扩容 → 覆盖 original[5]
+// s3 append 必扩容 → 独立副本
+```
+
+为什么需要完整表达式？
+
+
+防止子 slice/array 因为共享底层数组而污染数据。

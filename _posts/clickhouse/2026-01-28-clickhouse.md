@@ -1,5 +1,4 @@
 ---
-
 title: Clickhouse学习笔记
 date: 2026-01-29 00:00:00 +0800
 categories: [middleware, clickhouse]
@@ -61,10 +60,13 @@ author: ahern
 ### [SimpleAggregateFunction](https://clickhouse.com/docs/sql-reference/data-types/simpleaggregatefunction)
 
 - 和普通数据类型列一样。如`SimpleAggregateFunction(sum, UInt64)`底层就是`UInt64`列，没有中间态数据，没有额外辅助结构
+  
   > 为什么不直接定义普通数据列？如 UInt64
-  >
+  > 
   > 答：因为在 merge 阶段，SimpleAggregateFunction可以做聚合操作（如 sum，max，min），而普通类型不支持 merge 聚合。SimpleAggregateFunction一般搭配[AggregatingMergeTree](https://clickhouse.com/docs/engines/table-engines/mergetree-family/aggregatingmergetree)表引擎
+
 - 占用存储空间小
+
 - 常用于求单一结果，如min、max、sum 场景
 
 ### 枚举
@@ -178,6 +180,13 @@ img.png{:height="10%" width="50%"}
 
 参考：[https://sobriver.top/2021/07/07/%E7%BC%96%E7%A8%8B/clickhouse/clickhouse%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/](https://sobriver.top/2021/07/07/%E7%BC%96%E7%A8%8B/clickhouse/clickhouse%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D/)
 
+#### 分区索引
+
+> 数据结构是 MinMax 二元组（无序）。因为part数据较小，动态merge，维护全局有序成本高
+
+- 记录分区下分区字段对应原始数据的最小和最大值
+- 查询语句指定分区字段时，通过该索引快速定位到分区
+
 #### 主键索引
 
 > 低层数据结构是有序数组，采用二分查找
@@ -185,11 +194,6 @@ img.png{:height="10%" width="50%"}
 - 没有唯一约束
 - 稀疏索引；不是每行数据都建立索引；保存每个granule的order by建最小值
 - 由建表语句index_granularity指定索引粒度，默认8192
-
-#### 分区索引
-
-- 记录分区下分区字段对应原始数据的最小和最大值
-- 查询语句指定分区字段时，通过该索引快速定位到分区
 
 #### 跳数索引
 
@@ -201,6 +205,16 @@ img.png{:height="10%" width="50%"}
 - bloom_filter([false_positive])：布隆过滤器，false_positive为误报率
 - ngrambf_v1(n, size_of_bloom_filter_in_bytes, number_of_hash_functions, random_seed)：对String, FixedString 和 Map类型数据有效，可用于优化 EQUALS, LIKE 和 IN表达式。
 - tokenbf_v1(size_of_bloom_filter_in_bytes, number_of_hash_functions, random_seed)：适用全文搜索
+
+#### 分区索引 VS 主键索引 VS 跳数索引
+
+|      | 分区索引                 | 主键索引               | 跳数索引                          |
+| ---- | -------------------- | ------------------ | ----------------------------- |
+| 粒度   | 整个 data part（百万~千万行） | granule（默认 8192 行） | N 个 granule                   |
+| 数据结构 | MinMax 二元组           | 稀疏有序数组（排序键标记）      | Bloom Filter / Set / MinMax 等 |
+| 裁剪单位 | part 级别              | granule 级别         | N * granule 级别                |
+| 作用列  | PARTITION BY 列       | ORDER BY 列         | 任意指定列                         |
+| 开销   | 极低（每个 part 只存两个值）    | 低（每 8192 行一个标记）    | 低（取决于具体类型）                    |
 
 #### 排序key
 
@@ -246,7 +260,6 @@ img.png{:height="10%" width="50%"}
 - Delta：存储每行与前一行的差值
 - DoubleDelta：两阶段Delta（数据Delta后，在Delta）。正确使用，压缩比比Delta更高
 
-
 | 编码             | 原理                                         | 适合场景          |
 | -------------- | ------------------------------------------ | ------------- |
 | Delta          | 存储每行与前一行的差值                                | 递增数据，如：时间戳、ID |
@@ -255,16 +268,13 @@ img.png{:height="10%" width="50%"}
 | T64            | 删除高位为 0 的 bit                              | 小整数           |
 | LowCardinality | 字典编码                                       | 枚举            |
 
-
 ### 压缩算法
-
 
 | 压缩          | 原理                                      | 压缩率 | 压缩速度 | 解压速度 | 适合场景         |
 | ----------- | --------------------------------------- | --- | ---- | ---- | ------------ |
 | LZ4         | 用“引用历史数据的位置”代替重复的数据。                    | 低   | 极快   | 极快   | Clickhouse默认 |
 | ZSTD        | LZ77（类似LZ4）+ 熵编码（高频数据 → 短编码；低频数据 → 长编码） | 高   | 中    | 快    | 通用推荐         |
 | ZSTD(level) | ZSTD变种                                  | 很高  | 慢    | 中    | 冷数据          |
-
 
 ### 参考：
 
@@ -296,4 +306,3 @@ img.png{:height="10%" width="50%"}
 - [https://blog.csdn.net/qq_40378034/article/details/120256757](https://blog.csdn.net/qq_40378034/article/details/120256757)
 - BitMap及其在ClickHouse中的应用：[https://zhuanlan.zhihu.com/p/480345952](https://zhuanlan.zhihu.com/p/480345952)
 - 主键/索引/工作原理：[https://clickhouse.com/docs/zh/guides/improving-query-performance](https://clickhouse.com/docs/zh/guides/improving-query-performance)
-

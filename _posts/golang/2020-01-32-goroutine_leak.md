@@ -6,6 +6,16 @@ tags: [golang, troubleshooting]
 author: ahern
 ---
 
+## 泄漏场景
+
+> goroutine 被创建后，永远无法退出，持续占用内存和调度资源。
+
+- channel 无接受者/无发送者
+- select 缺少退出分支
+- WaitGroup 使用不当
+- http.Response.Body 未关闭
+- 死锁
+
 ## 定性goroutine泄漏
 
 现象1: goroutine数量持续增长（本文例子使用了goroutine pool，没有持续增长现象）
