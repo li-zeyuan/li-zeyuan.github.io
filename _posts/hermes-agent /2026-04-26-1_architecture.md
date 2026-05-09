@@ -1,5 +1,5 @@
 ---
-title: 一、架构
+title: 一、总体架构
 date: 2026-04-26 00:00:00 +0800
 categories: [ai,hermes-agent]
 tags: [ai,hermes-agent]
@@ -59,17 +59,27 @@ author: ahern
 - LLM Provider：适配多家大模型提供商。
 
 ### 存储层
+
 - SQLite + FTS5：SQLite 保存会话历史，FTS5提供Memory全文检索召回
 - 文件系统：保存长期记忆（MEMORY.md、 USER.md）等
 
 ### 工具层
+
 负责工具注册，工具集分组，多 backend 调用等，覆盖 web、terminal、file、browser、vision、memory、cron、delegation、MCP 等。
 
 ### Skills 系统
+
 兼容 agentskills.io 标准，并能在使用中**自我改进**。
 
 ## Hermes VS OpenClaw
+<img src="../assets/images/img_71.png" alt="" style="zoom:50%;" />
+
+|          | 核心架构                                               | 安全性     | 系统定位/使用场景              |
+| -------- | -------------------------------------------------- | ------- | ---------------------- |
+| Hermes   | 单 Agent ReAct 模式，强调 memory 和 skill 的自动演化           | 系统级最高权限 | 个人助手                   |
+| OpenClaw | control plane + multi-agent 编排，强调workflow、调度和多渠道集成 | 权限收敛    | 企业级 AI 自动化 workflow 平台 |
 
 ## 参考
+
 - [hermes-agent](https://github.com/nousresearch/hermes-agent)
 - [openclaw](https://github.com/openclaw/openclaw)
