@@ -76,8 +76,8 @@ author: ahern
 
 |          | 核心架构                                               | 安全性     | 系统定位/使用场景              |
 | -------- | -------------------------------------------------- | ------- | ---------------------- |
-| Hermes   | 单 Agent ReAct 模式，强调 memory 和 skill 的自动演化           | 系统级最高权限 | 个人助手                   |
-| OpenClaw | control plane + multi-agent 编排，强调workflow、调度和多渠道集成 | 权限收敛    | 企业级 AI 自动化 workflow 平台 |
+| Hermes   | 单 Agent ReAct 模式，强调 memory 和 skill 的自动演化           | 权限收敛 | 个人助手                   |
+| OpenClaw | control plane + multi-agent 编排，强调workflow、调度和多渠道集成 | 系统级最高权限  | 企业级 AI 自动化 workflow 平台 |
 
 ## 参考
 
